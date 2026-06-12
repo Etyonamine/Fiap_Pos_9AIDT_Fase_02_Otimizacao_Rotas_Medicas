@@ -92,11 +92,24 @@ export OPENAI_API_KEY=sk-...
 python -m medical_route_optimizer.main
 ```
 
+```powershell
+$env:USE_LLM = "true"
+$env:OPENAI_API_KEY = "sk-..."
+python -m medical_route_optimizer.main
+```
+
 ### Com LLM via Groq (gratuito)
 ```bash
 export USE_LLM=true
 export LLM_PROVIDER=groq
 export GROQ_API_KEY=gsk_...
+python -m medical_route_optimizer.main
+```
+
+```powershell
+$env:USE_LLM = "true"
+$env:LLM_PROVIDER = "groq"
+$env:GROQ_API_KEY = "gsk_..."
 python -m medical_route_optimizer.main
 ```
 
