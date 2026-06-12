@@ -7,7 +7,7 @@ padronizado, pronto para consumo pela camada de integração com LLM.
 
 from typing import List, Dict, Any, Optional
 
-from medical_route_optimizer.data.delivery_points import PontoEntrega
+from medical_route_optimizer.data.delivery_points import PontoEntrega, PRIORIDADE_LABEL
 from medical_route_optimizer.core.genetic_algorithm import calcular_distancia
 
 
@@ -68,7 +68,7 @@ def gerar_relatorio_rota(
             "nome": ponto.nome,
             "coords": ponto.coords,
             "prioridade": ponto.prioridade,
-            "prioridade_label": {1: "Alta", 2: "Média", 3: "Baixa"}.get(ponto.prioridade, "-"),
+            "prioridade_label": PRIORIDADE_LABEL.get(ponto.prioridade, "-"),
             "tempo_atendimento_min": ponto.tempo_atendimento,
             "tempo_deslocamento_min": round(tempo_desloc, 1),
             "tempo_acumulado_min": round(tempo_acumulado, 1),

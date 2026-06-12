@@ -33,6 +33,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from medical_route_optimizer.data.delivery_points import (
     get_hospital_base,
     get_pontos_entrega_sem_origem,
+    PRIORIDADE_LABEL,
 )
 from medical_route_optimizer.core.genetic_algorithm import (
     gerar_populacao_aleatoria,
@@ -99,9 +100,8 @@ def main():
 
     print(f"\n📍 Hospital base: {hospital_base.nome}")
     print(f"📦 Pontos de entrega: {len(locais_entrega)}")
-    prioridades = {1: "Alta", 2: "Média", 3: "Baixa"}
     for p in locais_entrega:
-        print(f"   [{prioridades.get(p.prioridade, '?')}] {p.nome}")
+        print(f"   [{PRIORIDADE_LABEL.get(p.prioridade, '?')}] {p.nome}")
 
     # ------------------------------------------------------------------
     # 2. Baseline: Nearest Neighbor
@@ -176,8 +176,9 @@ def main():
 
     print("\n🗺️  Rota final:")
     print(f"   {hospital_base.nome}", end="")
+    emoji_prioridade = {1: "🔴", 2: "🟡", 3: "🟢"}
     for ponto in melhor_rota_final:
-        prio = {1: "🔴", 2: "🟡", 3: "🟢"}.get(ponto.prioridade, "⚪")
+        prio = emoji_prioridade.get(ponto.prioridade, "⚪")
         print(f" → {prio} {ponto.nome}", end="")
     print(f" → {hospital_base.nome}")
 

@@ -250,6 +250,9 @@ def executar_algoritmo_genetico(
 
         while len(nova_populacao) < len(populacao_rotas):
             parent1, parent2 = random.choices(populacao_rotas, weights=pesos, k=2)
+            # Garante que os dois pais são distintos para crossover efetivo
+            if parent1 is parent2:
+                parent2 = random.choices(populacao_rotas, weights=pesos, k=1)[0]
             filho = order_crossover(parent1, parent2)
             filho = mutate(filho, probabilidade_mutacao)
             nova_populacao.append(filho)

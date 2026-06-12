@@ -63,3 +63,7 @@ def get_hospital_base() -> PontoEntrega:
 def get_pontos_entrega_sem_origem() -> List[PontoEntrega]:
     """Retorna apenas os pontos de entrega, excluindo o hospital base."""
     return [p for p in PONTOS_ENTREGA if not p.is_origin]
+
+
+# Mapeamento reutilizável de prioridade para rótulo textual
+PRIORIDADE_LABEL = {1: "Alta", 2: "Média", 3: "Baixa"}
