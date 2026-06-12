@@ -13,7 +13,7 @@ Pipeline completo:
     7. Modo interativo: aceita perguntas em linguagem natural sobre a rota.
 
 Uso:
-    python main.py
+    python -m medical_route_optimizer.main
 
 Variáveis de ambiente (configurar antes de executar com LLM):
     LLM_PROVIDER    → "openai" ou "groq" (padrão: openai)
@@ -217,7 +217,8 @@ def main():
             print(f"\n💬 Resposta:\n{resposta}\n")
     else:
         print("\nℹ️  LLM não habilitada. Para ativar, configure USE_LLM=true e a chave de API.")
-        print("   Exemplo: USE_LLM=true OPENAI_API_KEY=sk-... python main.py")
+        print("   Bash: export USE_LLM=true && export OPENAI_API_KEY=sk-... && python -m medical_route_optimizer.main")
+        print("   PowerShell: $env:USE_LLM='true'; $env:OPENAI_API_KEY='sk-...'; python -m medical_route_optimizer.main")
         print("\n   Os prompts foram gerados e estão prontos para uso:")
         print("   - prompt_instrucoes_operacionais(relatorio)")
         print("   - prompt_relatorio_gerencial(relatorio)")
