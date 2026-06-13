@@ -30,8 +30,8 @@ from medical_route_optimizer.data.delivery_points import PontoEntrega
 # ---------------------------------------------------------------------------
 # Constantes
 # ---------------------------------------------------------------------------
-FATOR_PENALIDADE_PRIORIDADE = 10.0   # peso da penalidade de prioridade no custo
-FATOR_PENALIDADE_CAPACIDADE = 50.0   # penalidade por unidade de carga acima da capacidade
+FATOR_PENALIDADE_PRIORIDADE = 10.0    # peso da penalidade de prioridade no custo
+FATOR_PENALIDADE_CAPACIDADE = 500.0  # penalidade por unidade de carga acima da capacidade
 FATOR_PENALIDADE_AUTONOMIA  = 3.0    # penalidade por pixel percorrido além da autonomia
 
 
@@ -140,6 +140,93 @@ def calcular_custo_rota(
         penalidade_autonomia = excesso * fator_penalidade_autonomia
 
     return distancia_total + penalidade_prioridade + penalidade_capacidade + penalidade_autonomia
+
+
+def calcular_custo_giant_tour_vrp(
+    giant_tour: List[PontoEntrega],
+    hospital_base: PontoEntrega,
+    n_veiculos: int,
+    capacidade_veiculo: Optional[float] = None,
+    autonomia_veiculo: Optional[float] = None,
+    fator_penalidade: float = FATOR_PENALIDADE_PRIORIDADE,
+    fator_penalidade_capacidade: float = FATOR_PENALIDADE_CAPACIDADE,
+    fator_penalidade_autonomia: float = FATOR_PENALIDADE_AUTONOMIA,
+) -> float:
+    """
+    Fitness VRP-aware: simula o particionamento guloso (greedy split) do giant
+    tour em sub-rotas por veículo e avalia o custo total considerando penalidades
+    **por veículo**.
+
+    Isso garante que a penalidade de capacidade varie entre indivíduos (ao
+    contrário de avaliar o giant tour inteiro como uma única rota, onde a
+    penalidade seria constante para toda a população e não guiaria a evolução).
+
+    O GA aprende a **ordenar o giant tour** de modo que o greedy split produza
+    sub-rotas balanceadas e factíveis.
+
+    Parâmetros:
+    - giant_tour: permutação completa de todos os pontos de entrega
+    - hospital_base: ponto de origem e retorno (depósito)
+    - n_veiculos: número máximo de veículos disponíveis
+    - capacidade_veiculo: carga máxima por veículo (None = irrestrito)
+    - autonomia_veiculo: distância máxima por ciclo em pixels (None = irrestrito)
+    - fator_penalidade: peso da penalidade de prioridade
+    - fator_penalidade_capacidade: penalidade por unidade de excesso de carga
+    - fator_penalidade_autonomia: penalidade por pixel além da autonomia
+
+    Retorno:
+    - custo total VRP (soma dos custos de todas as sub-rotas com penalidades)
+    """
+    # Greedy split inline (replica vrp_split.dividir_rotas_vrp sem importar o módulo,
+    # evitando importação circular)
+    rotas: List[List[PontoEntrega]] = []
+    rota_atual: List[PontoEntrega] = []
+    peso_atual: float = 0.0
+    dist_atual: float = 0.0
+    ponto_anterior: PontoEntrega = hospital_base
+
+    for ponto in giant_tour:
+        dist_passo = calcular_distancia(ponto_anterior, ponto)
+        dist_retorno = calcular_distancia(ponto, hospital_base)
+
+        capacidade_violada = (
+            capacidade_veiculo is not None
+            and peso_atual + ponto.peso > capacidade_veiculo
+        )
+        autonomia_violada = (
+            autonomia_veiculo is not None
+            and dist_atual + dist_passo + dist_retorno > autonomia_veiculo
+        )
+
+        veiculos_disponiveis = len(rotas) < n_veiculos - 1
+        if (capacidade_violada or autonomia_violada) and rota_atual and veiculos_disponiveis:
+            rotas.append(rota_atual)
+            rota_atual = []
+            peso_atual = 0.0
+            dist_atual = 0.0
+            ponto_anterior = hospital_base
+            dist_passo = calcular_distancia(hospital_base, ponto)
+
+        rota_atual.append(ponto)
+        peso_atual += ponto.peso
+        dist_atual += dist_passo
+        ponto_anterior = ponto
+
+    if rota_atual:
+        rotas.append(rota_atual)
+
+    # Custo total: soma do custo de cada sub-rota com penalidades por veículo
+    return sum(
+        calcular_custo_rota(
+            rota, hospital_base,
+            fator_penalidade=fator_penalidade,
+            capacidade_veiculo=capacidade_veiculo,
+            autonomia_veiculo=autonomia_veiculo,
+            fator_penalidade_capacidade=fator_penalidade_capacidade,
+            fator_penalidade_autonomia=fator_penalidade_autonomia,
+        )
+        for rota in rotas
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -264,6 +351,7 @@ def executar_algoritmo_genetico(
     tamanho_elite: int = 10,
     paciencia: int = 50,
     tolerancia: float = 1e-6,
+    n_veiculos: Optional[int] = None,
     capacidade_veiculo: Optional[float] = None,
     autonomia_veiculo: Optional[float] = None,
     fator_penalidade: float = FATOR_PENALIDADE_PRIORIDADE,
@@ -278,10 +366,15 @@ def executar_algoritmo_genetico(
     A evolução para antecipadamente quando não há melhora no melhor custo por
     ``paciencia`` gerações consecutivas (convergência), ou ao atingir ``n_geracoes``.
 
-    Quando ``capacidade_veiculo`` ou ``autonomia_veiculo`` são fornecidos, o GA
-    opera em modo VRP penalizado: a função de custo inclui penalidades por
-    violação das restrições, guiando o algoritmo a organizar o "giant tour" de
-    forma que os particionamentos respeitem as restrições do veículo.
+    Quando ``n_veiculos`` e ``capacidade_veiculo`` (ou ``autonomia_veiculo``) são
+    fornecidos, o GA usa um fitness VRP-aware (``calcular_custo_giant_tour_vrp``):
+    o giant tour é particionado por veículo via greedy split a cada avaliação,
+    e as penalidades são computadas **por sub-rota** em vez de sobre o tour inteiro.
+    Isso garante que a penalidade de capacidade varie entre indivíduos e guie
+    efetivamente a evolução a produzir tours que geram splits factíveis.
+
+    Sem ``n_veiculos`` (modo TSP), usa ``calcular_custo_rota`` diretamente sobre
+    o tour completo com as penalidades configuradas.
 
     Parâmetros:
     - locais_entrega: pontos de entrega (sem o hospital base)
@@ -293,6 +386,7 @@ def executar_algoritmo_genetico(
     - tamanho_elite: número dos melhores usados na seleção parental
     - paciencia: gerações consecutivas sem melhora para acionar parada antecipada
     - tolerancia: melhoria mínima absoluta para ser considerada progresso
+    - n_veiculos: número de veículos disponíveis; ativa o fitness VRP-aware quando fornecido
     - capacidade_veiculo: carga máxima por veículo (None = TSP sem restrição)
     - autonomia_veiculo: distância máxima por ciclo em pixels (None = sem restrição)
     - fator_penalidade: peso da penalidade de prioridade na função de custo
@@ -308,7 +402,25 @@ def executar_algoritmo_genetico(
     """
     import numpy as np
 
+    # Escolhe a função de fitness conforme o modo de operação:
+    # - VRP-aware: simula o greedy split e avalia custo por sub-rota (ativa quando
+    #   n_veiculos é fornecido junto com capacidade_veiculo ou autonomia_veiculo)
+    # - Flat: avalia o giant tour como uma única rota com penalidades (modo TSP)
+    _vrp_mode = n_veiculos is not None and (
+        capacidade_veiculo is not None or autonomia_veiculo is not None
+    )
+
     def _custo(rota):
+        if _vrp_mode:
+            return calcular_custo_giant_tour_vrp(
+                rota, hospital_base,
+                n_veiculos=n_veiculos,
+                capacidade_veiculo=capacidade_veiculo,
+                autonomia_veiculo=autonomia_veiculo,
+                fator_penalidade=fator_penalidade,
+                fator_penalidade_capacidade=fator_penalidade_capacidade,
+                fator_penalidade_autonomia=fator_penalidade_autonomia,
+            )
         return calcular_custo_rota(
             rota, hospital_base,
             capacidade_veiculo=capacidade_veiculo,

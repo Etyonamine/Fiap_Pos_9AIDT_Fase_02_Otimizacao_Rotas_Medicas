@@ -83,7 +83,7 @@ def _parse_pesos(raw: str) -> List[float]:
             vals.append(1.0)
         return vals[:4]
     except Exception:
-        return [1.0, 10.0, 50.0, 3.0]
+        return [1.0, 10.0, 500.0, 3.0]
 
 
 def _run_ga(
@@ -126,6 +126,7 @@ def _run_ga(
         probabilidade_mutacao=taxa_mutacao,
         probabilidade_crossover=taxa_crossover,
         paciencia=max(20, int(n_geracoes * 0.25)),
+        n_veiculos=n_veiculos,
         capacidade_veiculo=capacidade,
         autonomia_veiculo=autonomia,
         fator_penalidade=pesos[1],
@@ -347,7 +348,7 @@ with st.sidebar:
     )
     pesos_raw = st.text_input(
         "Pesos do fitness",
-        value="1.0, 10.0, 50.0, 3.0",
+        value="1.0, 10.0, 500.0, 3.0",
         help="Quatro pesos separados por vírgula: distância, prioridade, capacidade, autonomia",
         placeholder="w_dist, w_prior, w_cap, w_aut",
     )
