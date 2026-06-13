@@ -22,7 +22,7 @@ Função de custo (fitness):
 import random
 import math
 import copy
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from medical_route_optimizer.data.delivery_points import PontoEntrega
 
@@ -30,7 +30,9 @@ from medical_route_optimizer.data.delivery_points import PontoEntrega
 # ---------------------------------------------------------------------------
 # Constantes
 # ---------------------------------------------------------------------------
-FATOR_PENALIDADE_PRIORIDADE = 10.0  # peso da penalidade de prioridade no custo
+FATOR_PENALIDADE_PRIORIDADE = 10.0   # peso da penalidade de prioridade no custo
+FATOR_PENALIDADE_CAPACIDADE = 50.0   # penalidade por unidade de carga acima da capacidade
+FATOR_PENALIDADE_AUTONOMIA  = 3.0    # penalidade por pixel percorrido além da autonomia
 
 
 # ---------------------------------------------------------------------------
@@ -43,6 +45,29 @@ def calcular_distancia(p1: PontoEntrega, p2: PontoEntrega) -> float:
                      (p1.coords[1] - p2.coords[1]) ** 2)
 
 
+def calcular_distancia_rota(
+    rota: List[PontoEntrega],
+    hospital_base: PontoEntrega,
+) -> float:
+    """
+    Calcula somente a distância Euclidiana total do ciclo fechado (sem penalidades).
+
+    Útil para verificar restrição de autonomia separadamente do custo fitness.
+
+    Parâmetros:
+    - rota: sequência de pontos de entrega (sem o hospital base)
+    - hospital_base: ponto de origem e retorno
+
+    Retorno:
+    - distância total do ciclo em pixels
+    """
+    rota_completa = [hospital_base] + list(rota) + [hospital_base]
+    return sum(
+        calcular_distancia(rota_completa[i], rota_completa[i + 1])
+        for i in range(len(rota_completa) - 1)
+    )
+
+
 # ---------------------------------------------------------------------------
 # Função de custo (fitness)
 # ---------------------------------------------------------------------------
@@ -50,21 +75,37 @@ def calcular_distancia(p1: PontoEntrega, p2: PontoEntrega) -> float:
 def calcular_custo_rota(
     rota: List[PontoEntrega],
     hospital_base: PontoEntrega,
-    fator_penalidade: float = FATOR_PENALIDADE_PRIORIDADE
+    fator_penalidade: float = FATOR_PENALIDADE_PRIORIDADE,
+    capacidade_veiculo: Optional[float] = None,
+    autonomia_veiculo: Optional[float] = None,
+    fator_penalidade_capacidade: float = FATOR_PENALIDADE_CAPACIDADE,
+    fator_penalidade_autonomia: float = FATOR_PENALIDADE_AUTONOMIA,
 ) -> float:
     """
-    Calcula o custo total de uma rota incluindo distância e penalidade por prioridade.
+    Calcula o custo total de uma rota incluindo distância e penalidades de restrições.
 
     A rota recebida NÃO inclui o hospital base — ele é adicionado implicitamente
     no início e no fim para formar o ciclo fechado.
 
+    Penalidades aplicadas:
+    - Prioridade   : pacientes críticos atendidos tarde recebem penalidade proporcional
+                     à (posição / prioridade) × fator_penalidade.
+    - Capacidade   : excesso de carga além de ``capacidade_veiculo`` é penalizado por
+                     (excesso_kg × fator_penalidade_capacidade). None = sem restrição.
+    - Autonomia    : excesso de distância além de ``autonomia_veiculo`` é penalizado por
+                     (excesso_pixels × fator_penalidade_autonomia). None = sem restrição.
+
     Parâmetros:
     - rota: sequência de pontos de entrega (sem o hospital base)
     - hospital_base: ponto de origem e retorno
-    - fator_penalidade: peso aplicado à penalidade de prioridade
+    - fator_penalidade: peso da penalidade de prioridade
+    - capacidade_veiculo: carga máxima permitida por veículo (None = irrestrito)
+    - autonomia_veiculo: distância máxima por ciclo em pixels (None = irrestrito)
+    - fator_penalidade_capacidade: penalidade por unidade acima da capacidade
+    - fator_penalidade_autonomia: penalidade por pixel além da autonomia
 
     Retorno:
-    - custo total (distância + penalidade de prioridade)
+    - custo total (distância + penalidades)
     """
     rota_completa = [hospital_base] + list(rota) + [hospital_base]
     n = len(rota_completa)
@@ -83,7 +124,22 @@ def calcular_custo_rota(
         if ponto.prioridade in (1, 2):  # só penaliza prioridades altas e médias
             penalidade_prioridade += (posicao / ponto.prioridade) * fator_penalidade
 
-    return distancia_total + penalidade_prioridade
+    # Penalidade por capacidade:
+    # aplica somente se ``capacidade_veiculo`` for definido.
+    penalidade_capacidade = 0.0
+    if capacidade_veiculo is not None:
+        peso_total = sum(p.peso for p in rota)
+        excesso = max(0.0, peso_total - capacidade_veiculo)
+        penalidade_capacidade = excesso * fator_penalidade_capacidade
+
+    # Penalidade por autonomia:
+    # aplica somente se ``autonomia_veiculo`` for definido.
+    penalidade_autonomia = 0.0
+    if autonomia_veiculo is not None:
+        excesso = max(0.0, distancia_total - autonomia_veiculo)
+        penalidade_autonomia = excesso * fator_penalidade_autonomia
+
+    return distancia_total + penalidade_prioridade + penalidade_capacidade + penalidade_autonomia
 
 
 # ---------------------------------------------------------------------------
@@ -207,6 +263,8 @@ def executar_algoritmo_genetico(
     tamanho_elite: int = 10,
     paciencia: int = 50,
     tolerancia: float = 1e-6,
+    capacidade_veiculo: Optional[float] = None,
+    autonomia_veiculo: Optional[float] = None,
     verbose: bool = True
 ) -> Tuple[List[PontoEntrega], float, List[float]]:
     """
@@ -215,6 +273,11 @@ def executar_algoritmo_genetico(
     Aplica elitismo, seleção por roleta ponderada, crossover OX e mutação.
     A evolução para antecipadamente quando não há melhora no melhor custo por
     ``paciencia`` gerações consecutivas (convergência), ou ao atingir ``n_geracoes``.
+
+    Quando ``capacidade_veiculo`` ou ``autonomia_veiculo`` são fornecidos, o GA
+    opera em modo VRP penalizado: a função de custo inclui penalidades por
+    violação das restrições, guiando o algoritmo a organizar o "giant tour" de
+    forma que os particionamentos respeitem as restrições do veículo.
 
     Parâmetros:
     - locais_entrega: pontos de entrega (sem o hospital base)
@@ -225,6 +288,8 @@ def executar_algoritmo_genetico(
     - tamanho_elite: número dos melhores usados na seleção parental
     - paciencia: gerações consecutivas sem melhora para acionar parada antecipada
     - tolerancia: melhoria mínima absoluta para ser considerada progresso
+    - capacidade_veiculo: carga máxima por veículo (None = TSP sem restrição)
+    - autonomia_veiculo: distância máxima por ciclo em pixels (None = sem restrição)
     - verbose: se True, imprime progresso por geração
 
     Retorno:
@@ -234,11 +299,18 @@ def executar_algoritmo_genetico(
     """
     import numpy as np
 
+    def _custo(rota):
+        return calcular_custo_rota(
+            rota, hospital_base,
+            capacidade_veiculo=capacidade_veiculo,
+            autonomia_veiculo=autonomia_veiculo,
+        )
+
     populacao_rotas = list(populacao_inicial)
     historico_custos: List[float] = []
 
     # Inicializa o melhor global com a avaliação da população inicial
-    custos_iniciais = [calcular_custo_rota(rota, hospital_base) for rota in populacao_rotas]
+    custos_iniciais = [_custo(rota) for rota in populacao_rotas]
     idx_melhor = custos_iniciais.index(min(custos_iniciais))
     melhor_custo_global: float = custos_iniciais[idx_melhor]
     melhor_rota_global: List[PontoEntrega] = populacao_rotas[idx_melhor]
@@ -246,7 +318,7 @@ def executar_algoritmo_genetico(
 
     for geracao in range(1, n_geracoes + 1):
 
-        custos = [calcular_custo_rota(rota, hospital_base) for rota in populacao_rotas]
+        custos = [_custo(rota) for rota in populacao_rotas]
         populacao_rotas, custos = ordenar_populacao(populacao_rotas, custos)
 
         melhor_custo = custos[0]
@@ -284,7 +356,7 @@ def executar_algoritmo_genetico(
         while len(nova_populacao) < len(populacao_rotas):
             parent1, parent2 = random.choices(populacao_rotas, weights=pesos, k=2)
             # Garante que os dois pais são distintos para crossover efetivo
-            if parent1 is parent2:
+            if parent1 == parent2:
                 parent2 = random.choices(populacao_rotas, weights=pesos, k=1)[0]
             filho = order_crossover(parent1, parent2)
             filho = mutate(filho, probabilidade_mutacao)

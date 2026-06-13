@@ -44,6 +44,10 @@ from medical_route_optimizer.core.nearest_neighbor import (
     avaliar_baseline_nn,
 )
 from medical_route_optimizer.core.two_opt import two_opt_inversion
+from medical_route_optimizer.core.vrp_split import (
+    dividir_rotas_vrp,
+    resumo_restricoes_vrp,
+)
 from medical_route_optimizer.reports.route_report import gerar_relatorio_rota
 from medical_route_optimizer.llm.prompts import (
     prompt_instrucoes_operacionais,
@@ -60,6 +64,13 @@ N_GERACOES = 200        # limite máximo de gerações
 PACIENCIA = 50          # gerações sem melhora para parada antecipada
 PROBABILIDADE_MUTACAO = 0.3
 PROPORCAO_NN = 0.15  # 15% da população inicial gerada por Nearest Neighbor
+
+# ---------------------------------------------------------------------------
+# Parâmetros VRP (Roteamento de Veículos)
+# ---------------------------------------------------------------------------
+N_VEICULOS = 2           # número máximo de veículos disponíveis
+CAPACIDADE_VEICULO = 16  # carga máxima por veículo (unidades/kg)
+AUTONOMIA_VEICULO = 1400 # distância máxima por ciclo em pixels (~140 km)
 
 
 def _separador(titulo: str = "") -> None:
@@ -89,7 +100,7 @@ def _chamar_llm_seguro(prompt: str, descricao: str) -> str:
 
 def main():
     _separador("Sistema de Otimização de Rotas Médicas")
-    print("  Algoritmo Genético + Nearest Neighbor + Two Opt Inversion")
+    print("  Algoritmo Genético + Nearest Neighbor + Two Opt Inversion + VRP Split")
     print("  Integração com LLM para instruções e relatórios")
     _separador()
 
@@ -101,21 +112,27 @@ def main():
 
     print(f"\n📍 Hospital base: {hospital_base.nome}")
     print(f"📦 Pontos de entrega: {len(locais_entrega)}")
+    peso_total_carga = sum(p.peso for p in locais_entrega)
     for p in locais_entrega:
-        print(f"   [{PRIORIDADE_LABEL.get(p.prioridade, '?')}] {p.nome}")
+        print(f"   [{PRIORIDADE_LABEL.get(p.prioridade, '?')}] {p.nome}  ({p.peso:.1f} un.)")
+    print(f"\n⚙️  Restrições VRP:")
+    print(f"   Veículos disponíveis : {N_VEICULOS}")
+    print(f"   Capacidade/veículo   : {CAPACIDADE_VEICULO} un.  "
+          f"(carga total: {peso_total_carga:.1f} un.)")
+    print(f"   Autonomia/veículo    : {AUTONOMIA_VEICULO} px")
 
     # ------------------------------------------------------------------
     # 2. Baseline: Nearest Neighbor
     # ------------------------------------------------------------------
-    _separador("Etapa 1/4 — Baseline: Nearest Neighbor")
+    _separador("Etapa 1/5 — Baseline: Nearest Neighbor")
     rota_nn, custo_nn = avaliar_baseline_nn(locais_entrega, hospital_base)
     print(f"✅ Custo NN (baseline): {custo_nn:.2f}")
     print("   Rota NN: " + " → ".join(p.nome for p in rota_nn))
 
     # ------------------------------------------------------------------
-    # 3. Gerar população inicial híbrida
+    # 3. Gerar população inicial híbrida e executar GA com restrições VRP
     # ------------------------------------------------------------------
-    _separador("Etapa 2/4 — Algoritmo Genético")
+    _separador("Etapa 2/5 — Algoritmo Genético (Giant Tour com restrições VRP)")
     n_nn = max(1, int(TAMANHO_POPULACAO * PROPORCAO_NN))
     n_aleatorio = TAMANHO_POPULACAO - n_nn
 
@@ -134,26 +151,61 @@ def main():
         n_geracoes=N_GERACOES,
         probabilidade_mutacao=PROBABILIDADE_MUTACAO,
         paciencia=PACIENCIA,
+        capacidade_veiculo=CAPACIDADE_VEICULO,
+        autonomia_veiculo=AUTONOMIA_VEICULO,
         verbose=True,
     )
 
-    print(f"\n✅ Melhor custo GA: {custo_ga:.2f}")
+    print(f"\n✅ Melhor custo GA (giant tour com penalidades): {custo_ga:.2f}")
 
     # ------------------------------------------------------------------
     # 4. Refinamento: Two Opt Inversion
     # ------------------------------------------------------------------
-    _separador("Etapa 3/4 — Refinamento: Two Opt Inversion")
+    _separador("Etapa 3/5 — Refinamento: Two Opt Inversion")
     melhor_rota_final, custo_final = two_opt_inversion(
         melhor_rota_ga, hospital_base, verbose=True
     )
     print(f"\n✅ Custo final (GA + Two Opt): {custo_final:.2f}")
     melhoria_two_opt = custo_ga - custo_final
-    print(f"📉 Melhoria Two Opt: {melhoria_two_opt:.2f} ({melhoria_two_opt/custo_ga*100:.1f}%)")
+    if custo_ga > 0:
+        print(f"📉 Melhoria Two Opt: {melhoria_two_opt:.2f} ({melhoria_two_opt/custo_ga*100:.1f}%)")
 
     # ------------------------------------------------------------------
-    # 5. Gerar relatório estruturado
+    # 5. VRP Split: particionamento em rotas por veículo
     # ------------------------------------------------------------------
-    _separador("Etapa 4/4 — Relatório e Integração com LLM")
+    _separador("Etapa 4/5 — VRP Split: Particionamento por Veículo")
+    rotas_vrp = dividir_rotas_vrp(
+        giant_tour=melhor_rota_final,
+        hospital_base=hospital_base,
+        capacidade_veiculo=CAPACIDADE_VEICULO,
+        autonomia_veiculo=AUTONOMIA_VEICULO,
+        n_veiculos=N_VEICULOS,
+    )
+    resumo_vrp = resumo_restricoes_vrp(
+        rotas_vrp, hospital_base, CAPACIDADE_VEICULO, AUTONOMIA_VEICULO
+    )
+
+    emoji_prioridade = {1: "🔴", 2: "🟡", 3: "🟢"}
+    print(f"\n🚐 Solução VRP: {len(rotas_vrp)} veículo(s) necessário(s)\n")
+    for v in resumo_vrp:
+        cap_ok = "✅" if v["capacidade_ok"] else "❌"
+        aut_ok = "✅" if v["autonomia_ok"] else "❌"
+        print(f"  Veículo {v['veiculo']}:")
+        print(f"    Pontos       : {v['n_pontos']}")
+        print(f"    Carga total  : {v['peso_total']} / {v['capacidade_veiculo']} un.  {cap_ok}")
+        print(f"    Distância    : {v['distancia_pixels']:.0f} / {v['autonomia_veiculo']} px  {aut_ok}")
+        rota_v = rotas_vrp[v["veiculo"] - 1]
+        rota_str = hospital_base.nome
+        for ponto in rota_v:
+            prio = emoji_prioridade.get(ponto.prioridade, "⚪")
+            rota_str += f" → {prio} {ponto.nome}"
+        rota_str += f" → {hospital_base.nome}"
+        print(f"    Rota         : {rota_str}\n")
+
+    # ------------------------------------------------------------------
+    # 6. Gerar relatório estruturado
+    # ------------------------------------------------------------------
+    _separador("Etapa 5/5 — Relatório e Integração com LLM")
     relatorio = gerar_relatorio_rota(
         rota_otimizada=melhor_rota_final,
         hospital_base=hospital_base,
@@ -161,6 +213,8 @@ def main():
         historico_custos=historico,
         rota_baseline_nn=rota_nn,
         custo_baseline_nn=custo_nn,
+        rotas_vrp=rotas_vrp,
+        resumo_vrp=resumo_vrp,
     )
 
     print("\n📊 Resumo da rota otimizada:")
@@ -176,16 +230,15 @@ def main():
         print(f"\n{sinal} GA superou NN: {comp['ga_superou_nn']} "
               f"| Economia: {comp['economia_percentual']}%")
 
-    print("\n🗺️  Rota final:")
+    print("\n🗺️  Rota final (giant tour):")
     print(f"   {hospital_base.nome}", end="")
-    emoji_prioridade = {1: "🔴", 2: "🟡", 3: "🟢"}
     for ponto in melhor_rota_final:
         prio = emoji_prioridade.get(ponto.prioridade, "⚪")
         print(f" → {prio} {ponto.nome}", end="")
     print(f" → {hospital_base.nome}")
 
     # ------------------------------------------------------------------
-    # 6. Integração com LLM
+    # 7. Integração com LLM
     # ------------------------------------------------------------------
     if _usar_llm():
         print("\n\n🤖 Gerando instruções operacionais via LLM...")
@@ -201,7 +254,7 @@ def main():
         print(relatorio_gerencial)
 
         # ------------------------------------------------------------------
-        # 7. Modo interativo de perguntas
+        # 8. Modo interativo de perguntas
         # ------------------------------------------------------------------
         _separador("Modo Interativo — Perguntas sobre a Rota")
         print("Digite sua pergunta sobre a rota de entregas (ou 'sair' para encerrar):\n")
