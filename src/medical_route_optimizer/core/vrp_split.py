@@ -76,7 +76,12 @@ def dividir_rotas_vrp(
         )
 
         # Se há violação E a rota atual já tem pelo menos um ponto,
-        # e ainda há veículos disponíveis → fecha a rota e abre nova
+        # e ainda há veículos disponíveis → fecha a rota e abre nova.
+        # O limite é `n_veiculos - 1` porque o último veículo é reservado
+        # para absorver todos os pontos restantes (incluindo os infeasíveis):
+        # len(rotas) < n_veiculos - 1  →  "posso abrir mais um veículo"
+        # len(rotas) == n_veiculos - 1 →  "já tenho n_veiculos-1 rotas fechadas;
+        #                                   o veículo atual É o último disponível"
         veiculos_disponiveis = n_veiculos is None or len(rotas) < n_veiculos - 1
         if (capacidade_violada or autonomia_violada) and rota_atual and veiculos_disponiveis:
             rotas.append(rota_atual)

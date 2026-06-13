@@ -166,8 +166,8 @@ def main():
         melhor_rota_ga, hospital_base, verbose=True
     )
     print(f"\n✅ Custo final (GA + Two Opt): {custo_final:.2f}")
-    melhoria_two_opt = custo_ga - custo_final
     if custo_ga > 0:
+        melhoria_two_opt = custo_ga - custo_final
         print(f"📉 Melhoria Two Opt: {melhoria_two_opt:.2f} ({melhoria_two_opt/custo_ga*100:.1f}%)")
 
     # ------------------------------------------------------------------

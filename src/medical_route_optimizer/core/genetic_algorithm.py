@@ -355,7 +355,9 @@ def executar_algoritmo_genetico(
 
         while len(nova_populacao) < len(populacao_rotas):
             parent1, parent2 = random.choices(populacao_rotas, weights=pesos, k=2)
-            # Garante que os dois pais são distintos para crossover efetivo
+            # Usa comparação de conteúdo (==) para detectar pais com rotas idênticas
+            # e garantir diversidade genética no crossover. random.choices sempre
+            # retorna novos objetos, então `is` nunca detectaria duplicatas de conteúdo.
             if parent1 == parent2:
                 parent2 = random.choices(populacao_rotas, weights=pesos, k=1)[0]
             filho = order_crossover(parent1, parent2)
