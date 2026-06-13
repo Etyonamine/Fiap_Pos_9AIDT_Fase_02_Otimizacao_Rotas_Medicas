@@ -33,15 +33,8 @@ PERFIS: Dict[str, str] = {
 # Prompts por perfil
 # ---------------------------------------------------------------------------
 
-def prompt_motorista(relatorio: Dict[str, Any]) -> str:
-    """
-    Prompt para o motorista da entrega.
-
-    Foco: o que fazer, onde ir, em que ordem, com quais alertas de urgência.
-    Tom: direto, simples, operacional.
-    """
-    dados = json.dumps(relatorio, ensure_ascii=False, indent=2)
-
+def _build_prompt_motorista(dados: str) -> str:
+    """Monta o prompt de motorista a partir do JSON já serializado."""
     return f"""Você é um assistente de logística hospitalar que prepara o roteiro diário para motoristas de entrega.
 
 PERFIL DO USUÁRIO: Motorista — lê as instruções no dispositivo antes de sair do hospital.
@@ -72,16 +65,8 @@ REGRAS:
 Gere o roteiro de entrega agora:"""
 
 
-def prompt_operador(relatorio: Dict[str, Any]) -> str:
-    """
-    Prompt para o operador da central de distribuição.
-
-    Foco: monitoramento do status das rotas, violações de restrições VRP,
-    ações corretivas recomendadas.
-    Tom: técnico-operacional, focado em exceções e conformidade.
-    """
-    dados = json.dumps(relatorio, ensure_ascii=False, indent=2)
-
+def _build_prompt_operador(dados: str) -> str:
+    """Monta o prompt de operador a partir do JSON já serializado."""
     return f"""Você é um sistema de apoio a operadores da central de logística hospitalar.
 
 PERFIL DO USUÁRIO: Operador — monitora em tempo real a execução das rotas de distribuição.
@@ -123,16 +108,8 @@ REGRAS:
 Gere o painel de monitoramento agora:"""
 
 
-def prompt_gerente(relatorio: Dict[str, Any]) -> str:
-    """
-    Prompt para o gerente de distribuição.
-
-    Foco: KPIs estratégicos, eficiência da frota, comparação com baseline,
-    tendências e recomendações de melhoria de longo prazo.
-    Tom: executivo, analítico, orientado a resultados.
-    """
-    dados = json.dumps(relatorio, ensure_ascii=False, indent=2)
-
+def _build_prompt_gerente(dados: str) -> str:
+    """Monta o prompt de gerente a partir do JSON já serializado."""
     return f"""Você é um analista sênior de operações logísticas de uma rede hospitalar.
 
 PERFIL DO USUÁRIO: Gerente de Distribuição — toma decisões estratégicas sobre a frota e os processos.
@@ -177,20 +154,40 @@ REGRAS:
 Elabore o relatório gerencial agora:"""
 
 
+# Wrappers públicos com assinatura relatorio: Dict — mantêm compatibilidade com
+# chamadas diretas (ex.: testes, main.py) sem passar pelo dispatcher.
+def prompt_motorista(relatorio: Dict[str, Any]) -> str:
+    """Prompt para o motorista da entrega. Foco: roteiro operacional direto."""
+    return _build_prompt_motorista(json.dumps(relatorio, ensure_ascii=False, indent=2))
+
+
+def prompt_operador(relatorio: Dict[str, Any]) -> str:
+    """Prompt para o operador. Foco: monitoramento de restrições VRP e ações corretivas."""
+    return _build_prompt_operador(json.dumps(relatorio, ensure_ascii=False, indent=2))
+
+
+def prompt_gerente(relatorio: Dict[str, Any]) -> str:
+    """Prompt para o gerente. Foco: KPIs estratégicos, eficiência e recomendações."""
+    return _build_prompt_gerente(json.dumps(relatorio, ensure_ascii=False, indent=2))
+
+
 # ---------------------------------------------------------------------------
 # Dispatcher público
 # ---------------------------------------------------------------------------
 
-_PROMPT_FUNC: Dict[str, Callable[[Dict[str, Any]], str]] = {
-    "motorista": prompt_motorista,
-    "operador":  prompt_operador,
-    "gerente":   prompt_gerente,
+_BUILDER_FUNC: Dict[str, Callable[[str], str]] = {
+    "motorista": _build_prompt_motorista,
+    "operador":  _build_prompt_operador,
+    "gerente":   _build_prompt_gerente,
 }
 
 
 def prompt_por_perfil(chave_exibicao: str, relatorio: Dict[str, Any]) -> str:
     """
     Retorna o prompt correto para o perfil selecionado.
+
+    Serializa o relatório em JSON uma única vez e o passa ao construtor do
+    perfil, evitando serialização redundante em chamadas ao dispatcher.
 
     Parâmetros:
     - chave_exibicao: chave de exibição conforme definida em PERFIS
@@ -202,10 +199,12 @@ def prompt_por_perfil(chave_exibicao: str, relatorio: Dict[str, Any]) -> str:
     """
     # Aceita tanto a chave de exibição quanto a chave interna
     chave_interna = PERFIS.get(chave_exibicao, chave_exibicao)
-    func = _PROMPT_FUNC.get(chave_interna)
+    func = _BUILDER_FUNC.get(chave_interna)
     if func is None:
         raise ValueError(
             f"Perfil '{chave_exibicao}' não encontrado. "
             f"Perfis disponíveis: {list(PERFIS.keys())}"
         )
-    return func(relatorio)
+    # Serializa uma única vez; o builder recebe a string pronta
+    dados_json = json.dumps(relatorio, ensure_ascii=False, indent=2)
+    return func(dados_json)

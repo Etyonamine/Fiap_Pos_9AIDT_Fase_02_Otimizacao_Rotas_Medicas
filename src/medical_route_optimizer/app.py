@@ -229,7 +229,7 @@ def _build_route_map(
         cor = _VEHICLE_COLORS[idx % len(_VEHICLE_COLORS)]
         pontos_ciclo = [hospital_base] + rota + [hospital_base]
         xs = [p.coords[0] for p in pontos_ciclo]
-        ys = [-p.coords[1] for p in pontos_ciclo]
+        ys = [-p.coords[1] for p in pontos_ciclo]  # negate Y: screen coords grow downward
         fig.add_trace(go.Scatter(
             x=xs, y=ys,
             mode="lines",
@@ -510,7 +510,7 @@ with tab_valores:
         ))
 
         # Linha de referência: custo NN baseline
-        if res.get("custo_nn"):
+        if res.get("custo_nn") is not None:
             fig2.add_hline(
                 y=res["custo_nn"], line_dash="dash",
                 line_color="orange",
@@ -609,6 +609,9 @@ with tab_llm:
                             st.error(f"Erro de configuração: {exc}")
                         except Exception as exc:
                             st.error(f"Erro ao consultar LLM: {exc}")
+                        finally:
+                            # Remove API key from env to minimize exposure window
+                            os.environ.pop(env_key, None)
 
                     # Expander com o prompt enviado (transparência/auditoria)
                     with st.expander("🔍 Ver prompt enviado ao modelo"):
