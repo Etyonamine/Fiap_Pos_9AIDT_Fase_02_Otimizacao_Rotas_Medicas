@@ -28,6 +28,8 @@ def gerar_relatorio_rota(
     historico_custos: List[float],
     rota_baseline_nn: Optional[List[PontoEntrega]] = None,
     custo_baseline_nn: Optional[float] = None,
+    rotas_vrp: Optional[List[List[PontoEntrega]]] = None,
+    resumo_vrp: Optional[List[dict]] = None,
 ) -> Dict[str, Any]:
     """
     Gera um relatório estruturado com os dados da rota otimizada.
@@ -39,6 +41,8 @@ def gerar_relatorio_rota(
     - historico_custos: custo por geração do GA
     - rota_baseline_nn: rota gerada pelo Nearest Neighbor (baseline)
     - custo_baseline_nn: custo da rota baseline NN
+    - rotas_vrp: lista de sub-rotas por veículo (opcional)
+    - resumo_vrp: resumo de restrições por veículo gerado por resumo_restricoes_vrp (opcional)
 
     Retorno:
     - dicionário estruturado com todas as métricas da rota
@@ -113,6 +117,47 @@ def gerar_relatorio_rota(
         "historico_evolucao": {
             "melhor_custo_por_geracao": [round(c, 2) for c in historico_custos],
         },
+        "vrp": _gerar_secao_vrp(rotas_vrp, resumo_vrp),
     }
 
     return relatorio
+
+
+def _gerar_secao_vrp(
+    rotas_vrp: Optional[List[List[PontoEntrega]]],
+    resumo_vrp: Optional[List[dict]],
+) -> Optional[Dict[str, Any]]:
+    """Gera a seção VRP do relatório, ou None se não houver dados de VRP."""
+    if rotas_vrp is None or resumo_vrp is None:
+        return None
+
+    veiculos = []
+    for v in resumo_vrp:
+        idx = v["veiculo"] - 1
+        rota = rotas_vrp[idx]
+        veiculos.append({
+            "veiculo": v["veiculo"],
+            "n_pontos": v["n_pontos"],
+            "peso_total": v["peso_total"],
+            "capacidade_veiculo": v["capacidade_veiculo"],
+            "capacidade_ok": v["capacidade_ok"],
+            "distancia_pixels": v["distancia_pixels"],
+            "autonomia_veiculo": v["autonomia_veiculo"],
+            "autonomia_ok": v["autonomia_ok"],
+            "pontos": [
+                {
+                    "nome": p.nome,
+                    "prioridade": p.prioridade,
+                    "peso": p.peso,
+                    "tempo_atendimento_min": p.tempo_atendimento,
+                }
+                for p in rota
+            ],
+        })
+
+    todos_validos = all(v["capacidade_ok"] and v["autonomia_ok"] for v in resumo_vrp)
+    return {
+        "n_veiculos": len(rotas_vrp),
+        "solucao_valida": todos_validos,
+        "veiculos": veiculos,
+    }
