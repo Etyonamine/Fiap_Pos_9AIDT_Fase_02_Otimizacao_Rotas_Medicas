@@ -260,13 +260,17 @@ def executar_algoritmo_genetico(
     populacao_inicial: List[List[PontoEntrega]],
     n_geracoes: int = 200,
     probabilidade_mutacao: float = 0.3,
+    probabilidade_crossover: float = 1.0,
     tamanho_elite: int = 10,
     paciencia: int = 50,
     tolerancia: float = 1e-6,
     capacidade_veiculo: Optional[float] = None,
     autonomia_veiculo: Optional[float] = None,
+    fator_penalidade: float = FATOR_PENALIDADE_PRIORIDADE,
+    fator_penalidade_capacidade: float = FATOR_PENALIDADE_CAPACIDADE,
+    fator_penalidade_autonomia: float = FATOR_PENALIDADE_AUTONOMIA,
     verbose: bool = True
-) -> Tuple[List[PontoEntrega], float, List[float]]:
+) -> Tuple[List[PontoEntrega], float, List[float], List[float]]:
     """
     Executa o Algoritmo Genético para otimização da rota de entregas médicas.
 
@@ -284,18 +288,23 @@ def executar_algoritmo_genetico(
     - hospital_base: ponto de origem e retorno fixo
     - populacao_inicial: população de rotas para iniciar a evolução
     - n_geracoes: número máximo de gerações
-    - probabilidade_mutacao: probabilidade de mutação por indivíduo
+    - probabilidade_mutacao: probabilidade de mutação por indivíduo [0,1]
+    - probabilidade_crossover: probabilidade de aplicar OX; caso contrário clona parent1 [0,1]
     - tamanho_elite: número dos melhores usados na seleção parental
     - paciencia: gerações consecutivas sem melhora para acionar parada antecipada
     - tolerancia: melhoria mínima absoluta para ser considerada progresso
     - capacidade_veiculo: carga máxima por veículo (None = TSP sem restrição)
     - autonomia_veiculo: distância máxima por ciclo em pixels (None = sem restrição)
+    - fator_penalidade: peso da penalidade de prioridade na função de custo
+    - fator_penalidade_capacidade: penalidade por unidade de excesso de carga
+    - fator_penalidade_autonomia: penalidade por pixel além da autonomia
     - verbose: se True, imprime progresso por geração
 
     Retorno:
     - melhor_rota: melhor sequência de pontos de entrega encontrada
     - melhor_custo: custo total da melhor rota
     - historico_custos: lista com o melhor custo por geração
+    - historico_media: lista com o custo médio da população por geração
     """
     import numpy as np
 
@@ -304,10 +313,14 @@ def executar_algoritmo_genetico(
             rota, hospital_base,
             capacidade_veiculo=capacidade_veiculo,
             autonomia_veiculo=autonomia_veiculo,
+            fator_penalidade=fator_penalidade,
+            fator_penalidade_capacidade=fator_penalidade_capacidade,
+            fator_penalidade_autonomia=fator_penalidade_autonomia,
         )
 
     populacao_rotas = list(populacao_inicial)
     historico_custos: List[float] = []
+    historico_media: List[float] = []
 
     # Inicializa o melhor global com a avaliação da população inicial
     custos_iniciais = [_custo(rota) for rota in populacao_rotas]
@@ -324,6 +337,7 @@ def executar_algoritmo_genetico(
         melhor_custo = custos[0]
         melhor_rota = populacao_rotas[0]
         historico_custos.append(melhor_custo)
+        historico_media.append(float(np.mean(custos)))
 
         # Rastreia o melhor global e contabiliza estagnação
         if melhor_custo_global - melhor_custo > tolerancia:
@@ -349,21 +363,25 @@ def executar_algoritmo_genetico(
             break
 
         # Seleção por roleta ponderada (probabilidade inversa ao custo)
-        pesos = 1.0 / np.array(custos)
+        pesos_selecao = 1.0 / np.array(custos)
 
         nova_populacao = [melhor_rota]  # Elitismo: preserva o melhor
 
         while len(nova_populacao) < len(populacao_rotas):
-            parent1, parent2 = random.choices(populacao_rotas, weights=pesos, k=2)
+            parent1, parent2 = random.choices(populacao_rotas, weights=pesos_selecao, k=2)
             # Usa comparação de conteúdo (==) para detectar pais com rotas idênticas
             # e garantir diversidade genética no crossover. random.choices sempre
             # retorna novos objetos, então `is` nunca detectaria duplicatas de conteúdo.
             if parent1 == parent2:
-                parent2 = random.choices(populacao_rotas, weights=pesos, k=1)[0]
-            filho = order_crossover(parent1, parent2)
+                parent2 = random.choices(populacao_rotas, weights=pesos_selecao, k=1)[0]
+            # Aplica crossover com probabilidade configurável; caso contrário clona parent1
+            if random.random() < probabilidade_crossover:
+                filho = order_crossover(parent1, parent2)
+            else:
+                filho = list(parent1)
             filho = mutate(filho, probabilidade_mutacao)
             nova_populacao.append(filho)
 
         populacao_rotas = nova_populacao
 
-    return melhor_rota_global, melhor_custo_global, historico_custos
+    return melhor_rota_global, melhor_custo_global, historico_custos, historico_media

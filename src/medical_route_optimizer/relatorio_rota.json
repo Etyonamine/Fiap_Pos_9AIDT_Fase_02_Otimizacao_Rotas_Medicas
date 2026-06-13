@@ -4,9 +4,9 @@
     "distancia_total_pixels": 1219.22,
     "tempo_total_estimado_min": 423.8,
     "custo_otimizado": 1849.22,
-    "n_geracoes_ga": 50,
-    "custo_inicial_ga": 1857.06,
-    "custo_final_ga": 1857.06
+    "n_geracoes_ga": 63,
+    "custo_inicial_ga": 2632.06,
+    "custo_final_ga": 2624.22
   },
   "origem_retorno": "Hospital Base",
   "sequencia_atendimentos": [
@@ -223,56 +223,183 @@
   },
   "historico_evolucao": {
     "melhor_custo_por_geracao": [
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06,
-      1857.06
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2632.06,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22,
+      2624.22
+    ]
+  },
+  "vrp": {
+    "n_veiculos": 2,
+    "solucao_valida": false,
+    "veiculos": [
+      {
+        "veiculo": 1,
+        "n_pontos": 5,
+        "peso_total": 15.0,
+        "capacidade_veiculo": 16,
+        "capacidade_ok": true,
+        "distancia_pixels": 757.82,
+        "autonomia_veiculo": 1400,
+        "autonomia_ok": true,
+        "pontos": [
+          {
+            "nome": "UBS Parque Verde",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "Farmácia Central",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Posto Saúde Centro",
+            "prioridade": 1,
+            "peso": 3.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "UBS Vila Esperança",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Jardim América",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          }
+        ]
+      },
+      {
+        "veiculo": 2,
+        "n_pontos": 9,
+        "peso_total": 16.5,
+        "capacidade_veiculo": 16,
+        "capacidade_ok": false,
+        "distancia_pixels": 970.73,
+        "autonomia_veiculo": 1400,
+        "autonomia_ok": true,
+        "pontos": [
+          {
+            "nome": "UBS Vila Nova",
+            "prioridade": 1,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "Clínica Bem Estar",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Rua das Flores",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Av. Brasil",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Posto Saúde Leste",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Clínica São Lucas",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Farmácia Popular Norte",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Posto Saúde Sul",
+            "prioridade": 2,
+            "peso": 2.5,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Paciente - Rua do Lago",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          }
+        ]
+      }
     ]
   }
 }
