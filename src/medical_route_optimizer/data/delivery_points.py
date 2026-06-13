@@ -22,6 +22,7 @@ class PontoEntrega:
     coords: tuple          # (x, y) em pixels ou coordenadas normalizadas
     prioridade: int        # 1=Alta, 2=Média, 3=Baixa
     tempo_atendimento: int # minutos estimados no local
+    peso: float = 1.0      # carga a entregar (unidades/kg); usada para restrição de capacidade
     is_origin: bool = False
 
     def __hash__(self):
@@ -37,21 +38,21 @@ class PontoEntrega:
 # Dataset de exemplo: Hospital Base + 14 pontos de entrega
 # ---------------------------------------------------------------------------
 PONTOS_ENTREGA: List[PontoEntrega] = [
-    PontoEntrega("Hospital Base",           coords=(512, 317), prioridade=0, tempo_atendimento=0,  is_origin=True),
-    PontoEntrega("UBS Vila Nova",           coords=(741,  72), prioridade=1, tempo_atendimento=15),
-    PontoEntrega("Clínica São Lucas",       coords=(552,  50), prioridade=2, tempo_atendimento=10),
-    PontoEntrega("Posto Saúde Centro",      coords=(772, 346), prioridade=1, tempo_atendimento=20),
-    PontoEntrega("Paciente - Rua das Flores",(637, 12),  prioridade=1, tempo_atendimento=10),
-    PontoEntrega("Farmácia Popular Norte",  coords=(589, 131), prioridade=3, tempo_atendimento=5),
-    PontoEntrega("UBS Jardim América",      coords=(732, 165), prioridade=2, tempo_atendimento=15),
-    PontoEntrega("Paciente - Av. Brasil",   coords=(605,  15), prioridade=1, tempo_atendimento=10),
-    PontoEntrega("Clínica Bem Estar",       coords=(730,  38), prioridade=2, tempo_atendimento=10),
-    PontoEntrega("Posto Saúde Sul",         coords=(576, 216), prioridade=2, tempo_atendimento=20),
-    PontoEntrega("UBS Parque Verde",        coords=(589, 381), prioridade=3, tempo_atendimento=15),
-    PontoEntrega("Farmácia Central",        coords=(711, 387), prioridade=3, tempo_atendimento=5),
-    PontoEntrega("Paciente - Rua do Lago",  coords=(563, 228), prioridade=1, tempo_atendimento=10),
-    PontoEntrega("Posto Saúde Leste",       coords=(494,  22), prioridade=2, tempo_atendimento=20),
-    PontoEntrega("UBS Vila Esperança",      coords=(787, 288), prioridade=3, tempo_atendimento=15),
+    PontoEntrega("Hospital Base",            coords=(512, 317), prioridade=0, tempo_atendimento=0,  peso=0.0, is_origin=True),
+    PontoEntrega("UBS Vila Nova",            coords=(741,  72), prioridade=1, tempo_atendimento=15, peso=2.0),
+    PontoEntrega("Clínica São Lucas",        coords=(552,  50), prioridade=2, tempo_atendimento=10, peso=1.5),
+    PontoEntrega("Posto Saúde Centro",       coords=(772, 346), prioridade=1, tempo_atendimento=20, peso=3.0),
+    PontoEntrega("Paciente - Rua das Flores",(637,  12),        prioridade=1, tempo_atendimento=10, peso=1.0),
+    PontoEntrega("Farmácia Popular Norte",   coords=(589, 131), prioridade=3, tempo_atendimento=5,  peso=4.0),
+    PontoEntrega("UBS Jardim América",       coords=(732, 165), prioridade=2, tempo_atendimento=15, peso=2.0),
+    PontoEntrega("Paciente - Av. Brasil",    coords=(605,  15), prioridade=1, tempo_atendimento=10, peso=1.0),
+    PontoEntrega("Clínica Bem Estar",        coords=(730,  38), prioridade=2, tempo_atendimento=10, peso=1.5),
+    PontoEntrega("Posto Saúde Sul",          coords=(576, 216), prioridade=2, tempo_atendimento=20, peso=2.5),
+    PontoEntrega("UBS Parque Verde",         coords=(589, 381), prioridade=3, tempo_atendimento=15, peso=3.0),
+    PontoEntrega("Farmácia Central",         coords=(711, 387), prioridade=3, tempo_atendimento=5,  peso=4.0),
+    PontoEntrega("Paciente - Rua do Lago",   coords=(563, 228), prioridade=1, tempo_atendimento=10, peso=1.0),
+    PontoEntrega("Posto Saúde Leste",        coords=(494,  22), prioridade=2, tempo_atendimento=20, peso=2.0),
+    PontoEntrega("UBS Vila Esperança",       coords=(787, 288), prioridade=3, tempo_atendimento=15, peso=3.0),
 ]
 
 
