@@ -4,9 +4,9 @@
     "distancia_total_pixels": 1219.22,
     "tempo_total_estimado_min": 423.8,
     "custo_otimizado": 1849.22,
-    "n_geracoes_ga": 200,
+    "n_geracoes_ga": 50,
     "custo_inicial_ga": 1857.06,
-    "custo_final_ga": 1849.22
+    "custo_final_ga": 1857.06
   },
   "origem_retorno": "Hospital Base",
   "sequencia_atendimentos": [
@@ -272,6 +272,7 @@
       1857.06,
       1857.06,
       1857.06,
+<<<<<<< HEAD
       1857.06,
       1857.06,
       1857.06,
@@ -423,6 +424,9 @@
       1849.22,
       1849.22,
       1849.22
+=======
+      1857.06
+>>>>>>> c4abff397a95cc65af3fd1bfd7fdc6a6eff22158
     ]
   }
 }

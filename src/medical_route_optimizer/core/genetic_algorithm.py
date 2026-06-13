@@ -205,20 +205,26 @@ def executar_algoritmo_genetico(
     n_geracoes: int = 200,
     probabilidade_mutacao: float = 0.3,
     tamanho_elite: int = 10,
+    paciencia: int = 50,
+    tolerancia: float = 1e-6,
     verbose: bool = True
 ) -> Tuple[List[PontoEntrega], float, List[float]]:
     """
     Executa o Algoritmo Genético para otimização da rota de entregas médicas.
 
     Aplica elitismo, seleção por roleta ponderada, crossover OX e mutação.
+    A evolução para antecipadamente quando não há melhora no melhor custo por
+    ``paciencia`` gerações consecutivas (convergência), ou ao atingir ``n_geracoes``.
 
     Parâmetros:
     - locais_entrega: pontos de entrega (sem o hospital base)
     - hospital_base: ponto de origem e retorno fixo
     - populacao_inicial: população de rotas para iniciar a evolução
-    - n_geracoes: número de gerações
+    - n_geracoes: número máximo de gerações
     - probabilidade_mutacao: probabilidade de mutação por indivíduo
     - tamanho_elite: número dos melhores usados na seleção parental
+    - paciencia: gerações consecutivas sem melhora para acionar parada antecipada
+    - tolerancia: melhoria mínima absoluta para ser considerada progresso
     - verbose: se True, imprime progresso por geração
 
     Retorno:
@@ -231,6 +237,13 @@ def executar_algoritmo_genetico(
     populacao_rotas = list(populacao_inicial)
     historico_custos: List[float] = []
 
+    # Inicializa o melhor global com a avaliação da população inicial
+    custos_iniciais = [calcular_custo_rota(rota, hospital_base) for rota in populacao_rotas]
+    idx_melhor = custos_iniciais.index(min(custos_iniciais))
+    melhor_custo_global: float = custos_iniciais[idx_melhor]
+    melhor_rota_global: List[PontoEntrega] = populacao_rotas[idx_melhor]
+    geracoes_sem_melhora = 0
+
     for geracao in range(1, n_geracoes + 1):
 
         custos = [calcular_custo_rota(rota, hospital_base) for rota in populacao_rotas]
@@ -240,8 +253,28 @@ def executar_algoritmo_genetico(
         melhor_rota = populacao_rotas[0]
         historico_custos.append(melhor_custo)
 
+        # Rastreia o melhor global e contabiliza estagnação
+        if melhor_custo_global - melhor_custo > tolerancia:
+            melhor_custo_global = melhor_custo
+            melhor_rota_global = melhor_rota
+            geracoes_sem_melhora = 0
+        else:
+            geracoes_sem_melhora += 1
+
         if verbose:
-            print(f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f}")
+            print(
+                f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f}"
+                f"  (sem melhora: {geracoes_sem_melhora}/{paciencia})"
+            )
+
+        # Parada antecipada por convergência
+        if geracoes_sem_melhora >= paciencia:
+            if verbose:
+                print(
+                    f"\n⏹  Parada antecipada na geração {geracao}: "
+                    f"sem melhora por {paciencia} gerações consecutivas."
+                )
+            break
 
         # Seleção por roleta ponderada (probabilidade inversa ao custo)
         pesos = 1.0 / np.array(custos)
@@ -259,4 +292,4 @@ def executar_algoritmo_genetico(
 
         populacao_rotas = nova_populacao
 
-    return melhor_rota, melhor_custo, historico_custos
+    return melhor_rota_global, melhor_custo_global, historico_custos
