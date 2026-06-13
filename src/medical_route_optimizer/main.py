@@ -144,7 +144,7 @@ def main():
           f"({n_nn} Nearest Neighbor + {n_aleatorio} aleatórias)")
     print(f"🔄 Evoluindo (máx. {N_GERACOES} gerações, parada por convergência após {PACIENCIA} sem melhora)...\n")
 
-    melhor_rota_ga, custo_ga, historico = executar_algoritmo_genetico(
+    melhor_rota_ga, custo_ga, historico, _ = executar_algoritmo_genetico(
         locais_entrega=locais_entrega,
         hospital_base=hospital_base,
         populacao_inicial=populacao_inicial,
