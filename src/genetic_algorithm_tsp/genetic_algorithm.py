@@ -182,8 +182,10 @@ if __name__ == '__main__':
     N_CITIES = 10
     
     POPULATION_SIZE = 100
-    N_GENERATIONS = 100
+    N_GENERATIONS = 200
     MUTATION_PROBABILITY = 0.3
+    PATIENCE = 50           # generations without improvement before stopping
+    TOLERANCE = 1e-6        # minimum improvement to count as progress
     cities_locations = [(random.randint(0, 100), random.randint(0, 100))
               for _ in range(N_CITIES)]
     
@@ -193,7 +195,14 @@ if __name__ == '__main__':
     # Lists to store best fitness and generation for plotting
     best_fitness_values = []
     best_solutions = []
-    
+
+    # Initialize global best from initial population
+    initial_fitness = [calculate_fitness(ind) for ind in population]
+    best_idx = initial_fitness.index(min(initial_fitness))
+    best_fitness_global: float = initial_fitness[best_idx]
+    best_solution_global = population[best_idx]
+    generations_without_improvement = 0
+
     for generation in range(N_GENERATIONS):
   
         
@@ -207,7 +216,22 @@ if __name__ == '__main__':
         best_fitness_values.append(best_fitness)
         best_solutions.append(best_solution)    
 
-        print(f"Generation {generation}: Best fitness = {best_fitness}")
+        # Track global best and stagnation counter
+        if best_fitness_global - best_fitness > TOLERANCE:
+            best_fitness_global = best_fitness
+            best_solution_global = best_solution
+            generations_without_improvement = 0
+        else:
+            generations_without_improvement += 1
+
+        print(f"Generation {generation}: Best fitness = {best_fitness}"
+              f"  (no improvement: {generations_without_improvement}/{PATIENCE})")
+
+        # Early stopping on convergence
+        if generations_without_improvement >= PATIENCE:
+            print(f"\nEarly stopping at generation {generation}: "
+                  f"no improvement for {PATIENCE} consecutive generations.")
+            break
 
         new_population = [population[0]]  # Keep the best individual: ELITISM
         
@@ -225,8 +249,8 @@ if __name__ == '__main__':
             new_population.append(child1)
             
     
-        print('generation: ', generation)
         population = new_population
     
+    print(f"\nBest solution found: fitness = {best_fitness_global}")
 
 

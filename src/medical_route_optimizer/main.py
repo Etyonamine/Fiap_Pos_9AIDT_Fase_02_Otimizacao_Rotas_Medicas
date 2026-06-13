@@ -56,7 +56,8 @@ from medical_route_optimizer.llm.prompts import (
 # Parâmetros do GA
 # ---------------------------------------------------------------------------
 TAMANHO_POPULACAO = 150
-N_GERACOES = 200
+N_GERACOES = 200        # limite máximo de gerações
+PACIENCIA = 50          # gerações sem melhora para parada antecipada
 PROBABILIDADE_MUTACAO = 0.3
 PROPORCAO_NN = 0.15  # 15% da população inicial gerada por Nearest Neighbor
 
@@ -124,7 +125,7 @@ def main():
 
     print(f"🧬 População inicial: {len(populacao_inicial)} rotas "
           f"({n_nn} Nearest Neighbor + {n_aleatorio} aleatórias)")
-    print(f"🔄 Evoluindo por {N_GERACOES} gerações...\n")
+    print(f"🔄 Evoluindo (máx. {N_GERACOES} gerações, parada por convergência após {PACIENCIA} sem melhora)...\n")
 
     melhor_rota_ga, custo_ga, historico = executar_algoritmo_genetico(
         locais_entrega=locais_entrega,
@@ -132,6 +133,7 @@ def main():
         populacao_inicial=populacao_inicial,
         n_geracoes=N_GERACOES,
         probabilidade_mutacao=PROBABILIDADE_MUTACAO,
+        paciencia=PACIENCIA,
         verbose=True,
     )
 
