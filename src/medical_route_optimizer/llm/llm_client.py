@@ -56,7 +56,10 @@ def _chamar_openai(prompt: str, model: str, max_tokens: int) -> str:
         max_tokens=max_tokens,
         temperature=0.3,
     )
-    return (response.choices[0].message.content or '').strip()(prompt: str, model: str, max_tokens: int) -> str:
+    return (response.choices[0].message.content or '').strip()
+
+
+def _chamar_groq(prompt: str, model: str, max_tokens: int) -> str:
     """Chama a API do Groq e retorna o texto da resposta."""
     try:
         from groq import Groq  # type: ignore
@@ -79,6 +82,9 @@ def _chamar_openai(prompt: str, model: str, max_tokens: int) -> str:
         temperature=0.3,
     )
     return (response.choices[0].message.content or '').strip()
+
+
+def chamar_llm(
     prompt: str,
     max_tokens: int = 1024,
     provider: Optional[str] = None,
