@@ -16,8 +16,8 @@ Uso no pipeline:
 
 from typing import List, Tuple
 
-from medical_route_optimizer.data.delivery_points import PontoEntrega
-from medical_route_optimizer.core.genetic_algorithm import calcular_custo_rota
+from data.delivery_points import PontoEntrega
+from core.genetic_algorithm import calcular_custo_rota
 
 
 def two_opt_inversion(

@@ -21,8 +21,8 @@ Referências:
 
 from typing import List, Optional, Tuple
 
-from medical_route_optimizer.data.delivery_points import PontoEntrega
-from medical_route_optimizer.core.genetic_algorithm import (
+from data.delivery_points import PontoEntrega
+from core.genetic_algorithm import (
     calcular_distancia,
     calcular_custo_rota,
 )

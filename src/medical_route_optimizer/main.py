@@ -13,7 +13,7 @@ Pipeline completo:
     7. Modo interativo: aceita perguntas em linguagem natural sobre a rota.
 
 Uso:
-    python -m medical_route_optimizer.main
+    python -m main
 
 Variáveis de ambiente (configurar antes de executar com LLM):
     LLM_PROVIDER    → "openai" ou "groq" (padrão: openai)
@@ -30,26 +30,26 @@ import json
 # Garante que o diretório src está no path para imports relativos
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from medical_route_optimizer.data.delivery_points import (
+from data.delivery_points import (
     get_hospital_base,
     get_pontos_entrega_sem_origem,
     PRIORIDADE_LABEL,
 )
-from medical_route_optimizer.core.genetic_algorithm import (
+from core.genetic_algorithm import (
     gerar_populacao_aleatoria,
     executar_algoritmo_genetico,
 )
-from medical_route_optimizer.core.nearest_neighbor import (
+from core.nearest_neighbor import (
     gerar_populacao_nearest_neighbor,
     avaliar_baseline_nn,
 )
-from medical_route_optimizer.core.two_opt import two_opt_inversion
-from medical_route_optimizer.core.vrp_split import (
+from core.two_opt import two_opt_inversion
+from core.vrp_split import (
     dividir_rotas_vrp,
     resumo_restricoes_vrp,
 )
-from medical_route_optimizer.reports.route_report import gerar_relatorio_rota
-from medical_route_optimizer.llm.prompts import (
+from reports.route_report import gerar_relatorio_rota
+from llm.prompts import (
     prompt_instrucoes_operacionais,
     prompt_relatorio_gerencial,
     prompt_pergunta_linguagem_natural,
@@ -90,7 +90,7 @@ def _usar_llm() -> bool:
 def _chamar_llm_seguro(prompt: str, descricao: str) -> str:
     """Chama a LLM com tratamento de erro gracioso."""
     try:
-        from medical_route_optimizer.llm.llm_client import chamar_llm
+        from llm.llm_client import chamar_llm
         return chamar_llm(prompt)
     except (EnvironmentError, ImportError, ValueError) as e:
         return f"[LLM indisponível — {descricao}]\nErro: {e}"
@@ -272,8 +272,8 @@ def main():
             print(f"\n💬 Resposta:\n{resposta}\n")
     else:
         print("\nℹ️  LLM não habilitada. Para ativar, configure USE_LLM=true e a chave de API.")
-        print("   Bash: export USE_LLM=true && export OPENAI_API_KEY=sk-... && python -m medical_route_optimizer.main")
-        print("   PowerShell: $env:USE_LLM='true'; $env:OPENAI_API_KEY='sk-...'; python -m medical_route_optimizer.main")
+        print("   Bash: export USE_LLM=true && export OPENAI_API_KEY=sk-... && python -m  main")
+        print("   PowerShell: $env:USE_LLM='true'; $env:OPENAI_API_KEY='sk-...'; python -m  main")
         print("\n   Os prompts foram gerados e estão prontos para uso:")
         print("   - prompt_instrucoes_operacionais(relatorio)")
         print("   - prompt_relatorio_gerencial(relatorio)")

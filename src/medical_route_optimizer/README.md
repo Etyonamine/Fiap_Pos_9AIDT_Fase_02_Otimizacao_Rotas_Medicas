@@ -82,20 +82,20 @@ pip install -r requirements.txt
 ### Sem LLM (modo padrão)
 ```bash
 cd src
-python -m medical_route_optimizer.main
+python -m main
 ```
 
 ### Com LLM via OpenAI
 ```bash
 export USE_LLM=true
 export OPENAI_API_KEY=sk-...
-python -m medical_route_optimizer.main
+python -m main
 ```
 
 ```powershell
 $env:USE_LLM = "true"
 $env:OPENAI_API_KEY = "sk-..."
-python -m medical_route_optimizer.main
+python -m main
 ```
 
 ### Com LLM via Groq (gratuito)
@@ -103,14 +103,14 @@ python -m medical_route_optimizer.main
 export USE_LLM=true
 export LLM_PROVIDER=groq
 export GROQ_API_KEY=gsk_...
-python -m medical_route_optimizer.main
+python -m main
 ```
 
 ```powershell
 $env:USE_LLM = "true"
 $env:LLM_PROVIDER = "groq"
 $env:GROQ_API_KEY = "gsk_..."
-python -m medical_route_optimizer.main
+python -m main
 ```
 
 ---

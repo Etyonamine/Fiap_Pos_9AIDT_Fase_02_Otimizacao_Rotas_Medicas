@@ -7,8 +7,8 @@ padronizado, pronto para consumo pela camada de integração com LLM.
 
 from typing import List, Dict, Any, Optional
 
-from medical_route_optimizer.data.delivery_points import PontoEntrega, PRIORIDADE_LABEL
-from medical_route_optimizer.core.genetic_algorithm import calcular_distancia
+from  data.delivery_points import PontoEntrega, PRIORIDADE_LABEL
+from  core.genetic_algorithm import calcular_distancia
 
 
 # Velocidade média estimada para cálculo de tempo de deslocamento (km/h → pixels/min)

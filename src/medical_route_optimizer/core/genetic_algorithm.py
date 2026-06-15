@@ -24,7 +24,7 @@ import math
 import copy
 from typing import List, Optional, Tuple
 
-from medical_route_optimizer.data.delivery_points import PontoEntrega
+from data.delivery_points import PontoEntrega
 
 
 # ---------------------------------------------------------------------------
