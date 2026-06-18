@@ -15,9 +15,8 @@ Uso no pipeline:
 """
 
 from typing import List, Tuple
-
-from data.delivery_points import PontoEntrega
 from core.genetic_algorithm import calcular_custo_rota
+from data.delivery_points import PontoEntrega
 
 
 def two_opt_inversion(

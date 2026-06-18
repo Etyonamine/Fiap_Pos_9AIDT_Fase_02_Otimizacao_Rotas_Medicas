@@ -25,15 +25,14 @@ import copy
 from typing import List, Optional, Tuple
 
 from data.delivery_points import PontoEntrega
-
+from core.genetic_operator import order_crossover, mutate, mutate_segment_inversion, pmx_crossover
 
 # ---------------------------------------------------------------------------
 # Constantes
 # ---------------------------------------------------------------------------
-FATOR_PENALIDADE_PRIORIDADE = 10.0    # peso da penalidade de prioridade no custo
-FATOR_PENALIDADE_CAPACIDADE = 500.0  # penalidade por unidade de carga acima da capacidade
-FATOR_PENALIDADE_AUTONOMIA  = 3.0    # penalidade por pixel percorrido além da autonomia
-
+FATOR_PENALIDADE_PRIORIDADE = 5.0    # peso da penalidade de prioridade no custo
+FATOR_PENALIDADE_CAPACIDADE = 17.0  # penalidade por unidade de carga acima da capacidade
+FATOR_PENALIDADE_AUTONOMIA  = 1.0    # penalidade por pixel percorrido além da autonomia
 
 # ---------------------------------------------------------------------------
 # Distância
@@ -43,7 +42,6 @@ def calcular_distancia(p1: PontoEntrega, p2: PontoEntrega) -> float:
     """Calcula a distância Euclidiana entre dois pontos de entrega."""
     return math.sqrt((p1.coords[0] - p2.coords[0]) ** 2 +
                      (p1.coords[1] - p2.coords[1]) ** 2)
-
 
 def calcular_distancia_rota(
     rota: List[PontoEntrega],
@@ -66,7 +64,6 @@ def calcular_distancia_rota(
         calcular_distancia(rota_completa[i], rota_completa[i + 1])
         for i in range(len(rota_completa) - 1)
     )
-
 
 # ---------------------------------------------------------------------------
 # Função de custo (fitness)
@@ -140,7 +137,6 @@ def calcular_custo_rota(
         penalidade_autonomia = excesso * fator_penalidade_autonomia
 
     return distancia_total + penalidade_prioridade + penalidade_capacidade + penalidade_autonomia
-
 
 def calcular_custo_giant_tour_vrp(
     giant_tour: List[PontoEntrega],
@@ -228,7 +224,6 @@ def calcular_custo_giant_tour_vrp(
         for rota in rotas
     )
 
-
 # ---------------------------------------------------------------------------
 # Geração de população inicial
 # ---------------------------------------------------------------------------
@@ -252,68 +247,6 @@ def gerar_populacao_aleatoria(
     return [random.sample(locais_entrega, len(locais_entrega))
             for _ in range(tamanho_populacao)]
 
-
-# ---------------------------------------------------------------------------
-# Operadores genéticos
-# ---------------------------------------------------------------------------
-
-def order_crossover(
-    parent1: List[PontoEntrega],
-    parent2: List[PontoEntrega]
-) -> List[PontoEntrega]:
-    """
-    Operador de crossover por ordem (OX — Order Crossover) para permutações.
-
-    Preserva a estrutura de permutação válida, evitando duplicidade de cidades.
-
-    Parâmetros:
-    - parent1: rota do primeiro pai
-    - parent2: rota do segundo pai
-
-    Retorno:
-    - rota filho resultante da recombinação
-    """
-    length = len(parent1)
-    start_index = random.randint(0, length - 1)
-    end_index = random.randint(start_index + 1, length)
-
-    child = parent1[start_index:end_index]
-    remaining_positions = [i for i in range(length) if i < start_index or i >= end_index]
-    remaining_genes = [gene for gene in parent2 if gene not in child]
-
-    for position, gene in zip(remaining_positions, remaining_genes):
-        child.insert(position, gene)
-
-    return child
-
-
-def mutate(
-    rota: List[PontoEntrega],
-    probabilidade_mutacao: float
-) -> List[PontoEntrega]:
-    """
-    Operador de mutação: troca dois pontos adjacentes da rota com dada probabilidade.
-
-    Preserva a validade da permutação.
-
-    Parâmetros:
-    - rota: sequência de pontos de entrega
-    - probabilidade_mutacao: probabilidade de ocorrer mutação [0.0, 1.0]
-
-    Retorno:
-    - rota mutada (ou cópia da original se mutação não ocorrer)
-    """
-    rota_mutada = copy.deepcopy(rota)
-
-    if random.random() < probabilidade_mutacao:
-        if len(rota) < 2:
-            return rota_mutada
-        index = random.randint(0, len(rota) - 2)
-        rota_mutada[index], rota_mutada[index + 1] = rota[index + 1], rota[index]
-
-    return rota_mutada
-
-
 # ---------------------------------------------------------------------------
 # Ordenação da população
 # ---------------------------------------------------------------------------
@@ -336,20 +269,18 @@ def ordenar_populacao(
     populacao_ordenada, custos_ordenados = zip(*combinado)
     return list(populacao_ordenada), list(custos_ordenados)
 
-
 # ---------------------------------------------------------------------------
 # Loop evolutivo principal
-# ---------------------------------------------------------------------------
-
+# --------------------------------------------------------------------------- 
 def executar_algoritmo_genetico(
     locais_entrega: List[PontoEntrega],
     hospital_base: PontoEntrega,
     populacao_inicial: List[List[PontoEntrega]],
     n_geracoes: int = 200,
-    probabilidade_mutacao: float = 0.3,
+    probabilidade_mutacao: float = 0.4,
     probabilidade_crossover: float = 1.0,
     tamanho_elite: int = 10,
-    paciencia: int = 50,
+    paciencia: int = 150,
     tolerancia: float = 1e-6,
     n_veiculos: Optional[int] = None,
     capacidade_veiculo: Optional[float] = None,
@@ -359,53 +290,9 @@ def executar_algoritmo_genetico(
     fator_penalidade_autonomia: float = FATOR_PENALIDADE_AUTONOMIA,
     verbose: bool = True
 ) -> Tuple[List[PontoEntrega], float, List[float], List[float]]:
-    """
-    Executa o Algoritmo Genético para otimização da rota de entregas médicas.
-
-    Aplica elitismo, seleção por roleta ponderada, crossover OX e mutação.
-    A evolução para antecipadamente quando não há melhora no melhor custo por
-    ``paciencia`` gerações consecutivas (convergência), ou ao atingir ``n_geracoes``.
-
-    Quando ``n_veiculos`` e ``capacidade_veiculo`` (ou ``autonomia_veiculo``) são
-    fornecidos, o GA usa um fitness VRP-aware (``calcular_custo_giant_tour_vrp``):
-    o giant tour é particionado por veículo via greedy split a cada avaliação,
-    e as penalidades são computadas **por sub-rota** em vez de sobre o tour inteiro.
-    Isso garante que a penalidade de capacidade varie entre indivíduos e guie
-    efetivamente a evolução a produzir tours que geram splits factíveis.
-
-    Sem ``n_veiculos`` (modo TSP), usa ``calcular_custo_rota`` diretamente sobre
-    o tour completo com as penalidades configuradas.
-
-    Parâmetros:
-    - locais_entrega: pontos de entrega (sem o hospital base)
-    - hospital_base: ponto de origem e retorno fixo
-    - populacao_inicial: população de rotas para iniciar a evolução
-    - n_geracoes: número máximo de gerações
-    - probabilidade_mutacao: probabilidade de mutação por indivíduo [0,1]
-    - probabilidade_crossover: probabilidade de aplicar OX; caso contrário clona parent1 [0,1]
-    - tamanho_elite: número dos melhores usados na seleção parental
-    - paciencia: gerações consecutivas sem melhora para acionar parada antecipada
-    - tolerancia: melhoria mínima absoluta para ser considerada progresso
-    - n_veiculos: número de veículos disponíveis; ativa o fitness VRP-aware quando fornecido
-    - capacidade_veiculo: carga máxima por veículo (None = TSP sem restrição)
-    - autonomia_veiculo: distância máxima por ciclo em pixels (None = sem restrição)
-    - fator_penalidade: peso da penalidade de prioridade na função de custo
-    - fator_penalidade_capacidade: penalidade por unidade de excesso de carga
-    - fator_penalidade_autonomia: penalidade por pixel além da autonomia
-    - verbose: se True, imprime progresso por geração
-
-    Retorno:
-    - melhor_rota: melhor sequência de pontos de entrega encontrada
-    - melhor_custo: custo total da melhor rota
-    - historico_custos: lista com o melhor custo por geração
-    - historico_media: lista com o custo médio da população por geração
-    """
     import numpy as np
 
-    # Escolhe a função de fitness conforme o modo de operação:
-    # - VRP-aware: simula o greedy split e avalia custo por sub-rota (ativa quando
-    #   n_veiculos é fornecido junto com capacidade_veiculo ou autonomia_veiculo)
-    # - Flat: avalia o giant tour como uma única rota com penalidades (modo TSP)
+    # Fitness adaptado para VRP
     _vrp_mode = n_veiculos is not None and (
         capacidade_veiculo is not None or autonomia_veiculo is not None
     )
@@ -431,67 +318,61 @@ def executar_algoritmo_genetico(
         )
 
     populacao_rotas = list(populacao_inicial)
-    historico_custos: List[float] = []
-    historico_media: List[float] = []
+    historico_custos, historico_media = [], []
 
-    # Inicializa o melhor global com a avaliação da população inicial
     custos_iniciais = [_custo(rota) for rota in populacao_rotas]
     idx_melhor = custos_iniciais.index(min(custos_iniciais))
-    melhor_custo_global: float = custos_iniciais[idx_melhor]
-    melhor_rota_global: List[PontoEntrega] = populacao_rotas[idx_melhor]
+    melhor_custo_global = custos_iniciais[idx_melhor]
+    melhor_rota_global = populacao_rotas[idx_melhor]
     geracoes_sem_melhora = 0
 
     for geracao in range(1, n_geracoes + 1):
-
         custos = [_custo(rota) for rota in populacao_rotas]
         populacao_rotas, custos = ordenar_populacao(populacao_rotas, custos)
 
-        melhor_custo = custos[0]
-        melhor_rota = populacao_rotas[0]
+        melhor_custo, melhor_rota = custos[0], populacao_rotas[0]
         historico_custos.append(melhor_custo)
         historico_media.append(float(np.mean(custos)))
 
-        # Rastreia o melhor global e contabiliza estagnação
         if melhor_custo_global - melhor_custo > tolerancia:
-            melhor_custo_global = melhor_custo
-            melhor_rota_global = melhor_rota
+            melhor_custo_global, melhor_rota_global = melhor_custo, melhor_rota
             geracoes_sem_melhora = 0
         else:
             geracoes_sem_melhora += 1
 
         if verbose:
-            print(
-                f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f}"
-                f"  (sem melhora: {geracoes_sem_melhora}/{paciencia})"
-            )
+            print(f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f} "
+                  f"(sem melhora: {geracoes_sem_melhora}/{paciencia})")
 
-        # Parada antecipada por convergência
         if geracoes_sem_melhora >= paciencia:
             if verbose:
-                print(
-                    f"\n⏹  Parada antecipada na geração {geracao}: "
-                    f"sem melhora por {paciencia} gerações consecutivas."
-                )
+                print(f"\n⏹  Parada antecipada na geração {geracao}: "
+                      f"sem melhora por {paciencia} gerações consecutivas.")
             break
 
-        # Seleção por roleta ponderada (probabilidade inversa ao custo)
         pesos_selecao = 1.0 / np.array(custos)
-
-        nova_populacao = [melhor_rota]  # Elitismo: preserva o melhor
+        nova_populacao = [melhor_rota]  # elitismo
 
         while len(nova_populacao) < len(populacao_rotas):
             parent1, parent2 = random.choices(populacao_rotas, weights=pesos_selecao, k=2)
-            # Usa comparação de conteúdo (==) para detectar pais com rotas idênticas
-            # e garantir diversidade genética no crossover. random.choices sempre
-            # retorna novos objetos, então `is` nunca detectaria duplicatas de conteúdo.
             if parent1 == parent2:
                 parent2 = random.choices(populacao_rotas, weights=pesos_selecao, k=1)[0]
-            # Aplica crossover com probabilidade configurável; caso contrário clona parent1
+
+            # Crossover híbrido
             if random.random() < probabilidade_crossover:
-                filho = order_crossover(parent1, parent2)
+                if random.random() < 0.5:
+                    filho = order_crossover(parent1, parent2)
+                else:
+                    filho = pmx_crossover(parent1, parent2)
             else:
                 filho = list(parent1)
-            filho = mutate(filho, probabilidade_mutacao)
+
+            # Mutação híbrida
+            if random.random() < 0.5:
+                filho = mutate(filho, probabilidade_mutacao)
+            else:
+                filho = mutate_segment_inversion(filho, probabilidade_mutacao)
+
             nova_populacao.append(filho)
 
         populacao_rotas = nova_populacao
