@@ -81,28 +81,13 @@ def calcular_custo_rota(
     """
     Calcula o custo total de uma rota incluindo distância e penalidades de restrições.
 
-    A rota recebida NÃO inclui o hospital base — ele é adicionado implicitamente
-    no início e no fim para formar o ciclo fechado.
-
     Penalidades aplicadas:
     - Prioridade   : pacientes críticos atendidos tarde recebem penalidade proporcional
                      à (posição / prioridade) × fator_penalidade.
-    - Capacidade   : excesso de carga além de ``capacidade_veiculo`` é penalizado por
-                     (excesso_kg × fator_penalidade_capacidade). None = sem restrição.
+    - Capacidade   : excesso de carga além de ``capacidade_veiculo`` é penalizado de forma
+                     proporcional ao excesso relativo (excesso/capacidade × fator).
     - Autonomia    : excesso de distância além de ``autonomia_veiculo`` é penalizado por
-                     (excesso_pixels × fator_penalidade_autonomia). None = sem restrição.
-
-    Parâmetros:
-    - rota: sequência de pontos de entrega (sem o hospital base)
-    - hospital_base: ponto de origem e retorno
-    - fator_penalidade: peso da penalidade de prioridade
-    - capacidade_veiculo: carga máxima permitida por veículo (None = irrestrito)
-    - autonomia_veiculo: distância máxima por ciclo em pixels (None = irrestrito)
-    - fator_penalidade_capacidade: penalidade por unidade acima da capacidade
-    - fator_penalidade_autonomia: penalidade por pixel além da autonomia
-
-    Retorno:
-    - custo total (distância + penalidades)
+                     (excesso_pixels × fator_penalidade_autonomia).
     """
     rota_completa = [hospital_base] + list(rota) + [hospital_base]
     n = len(rota_completa)
@@ -113,24 +98,22 @@ def calcular_custo_rota(
         for i in range(n - 1)
     )
 
-    # Penalidade por prioridade:
-    # pacientes de alta prioridade (menor número) atendidos em posições tardias
-    # na rota recebem penalidade proporcional à (posição × fator / prioridade).
+    # Penalidade por prioridade
     penalidade_prioridade = 0.0
     for posicao, ponto in enumerate(rota, start=1):
-        if ponto.prioridade in (1, 2):  # só penaliza prioridades altas e médias
+        if ponto.prioridade in (1, 2):
             penalidade_prioridade += (posicao / ponto.prioridade) * fator_penalidade
 
-    # Penalidade por capacidade:
-    # aplica somente se ``capacidade_veiculo`` for definido.
+    # Penalidade proporcional por capacidade
     penalidade_capacidade = 0.0
     if capacidade_veiculo is not None:
         peso_total = sum(p.peso for p in rota)
         excesso = max(0.0, peso_total - capacidade_veiculo)
-        penalidade_capacidade = excesso * fator_penalidade_capacidade
+        if excesso > 0:
+            excesso_relativo = excesso / capacidade_veiculo
+            penalidade_capacidade = excesso_relativo * fator_penalidade_capacidade
 
-    # Penalidade por autonomia:
-    # aplica somente se ``autonomia_veiculo`` for definido.
+    # Penalidade por autonomia
     penalidade_autonomia = 0.0
     if autonomia_veiculo is not None:
         excesso = max(0.0, distancia_total - autonomia_veiculo)
@@ -148,33 +131,6 @@ def calcular_custo_giant_tour_vrp(
     fator_penalidade_capacidade: float = FATOR_PENALIDADE_CAPACIDADE,
     fator_penalidade_autonomia: float = FATOR_PENALIDADE_AUTONOMIA,
 ) -> float:
-    """
-    Fitness VRP-aware: simula o particionamento guloso (greedy split) do giant
-    tour em sub-rotas por veículo e avalia o custo total considerando penalidades
-    **por veículo**.
-
-    Isso garante que a penalidade de capacidade varie entre indivíduos (ao
-    contrário de avaliar o giant tour inteiro como uma única rota, onde a
-    penalidade seria constante para toda a população e não guiaria a evolução).
-
-    O GA aprende a **ordenar o giant tour** de modo que o greedy split produza
-    sub-rotas balanceadas e factíveis.
-
-    Parâmetros:
-    - giant_tour: permutação completa de todos os pontos de entrega
-    - hospital_base: ponto de origem e retorno (depósito)
-    - n_veiculos: número máximo de veículos disponíveis
-    - capacidade_veiculo: carga máxima por veículo (None = irrestrito)
-    - autonomia_veiculo: distância máxima por ciclo em pixels (None = irrestrito)
-    - fator_penalidade: peso da penalidade de prioridade
-    - fator_penalidade_capacidade: penalidade por unidade de excesso de carga
-    - fator_penalidade_autonomia: penalidade por pixel além da autonomia
-
-    Retorno:
-    - custo total VRP (soma dos custos de todas as sub-rotas com penalidades)
-    """
-    # Greedy split inline (replica vrp_split.dividir_rotas_vrp sem importar o módulo,
-    # evitando importação circular)
     rotas: List[List[PontoEntrega]] = []
     rota_atual: List[PontoEntrega] = []
     peso_atual: float = 0.0
@@ -211,9 +167,10 @@ def calcular_custo_giant_tour_vrp(
     if rota_atual:
         rotas.append(rota_atual)
 
-    # Custo total: soma do custo de cada sub-rota com penalidades por veículo
-    return sum(
-        calcular_custo_rota(
+    # Soma dos custos de cada sub-rota
+    custo_total = 0.0
+    for rota in rotas:
+        custo_total += calcular_custo_rota(
             rota, hospital_base,
             fator_penalidade=fator_penalidade,
             capacidade_veiculo=capacidade_veiculo,
@@ -221,8 +178,9 @@ def calcular_custo_giant_tour_vrp(
             fator_penalidade_capacidade=fator_penalidade_capacidade,
             fator_penalidade_autonomia=fator_penalidade_autonomia,
         )
-        for rota in rotas
-    )
+    return custo_total
+
+
 
 # ---------------------------------------------------------------------------
 # Geração de população inicial
@@ -335,19 +293,26 @@ def executar_algoritmo_genetico(
         historico_media.append(float(np.mean(custos)))
 
         if melhor_custo_global - melhor_custo > tolerancia:
+            melhoria = melhor_custo_global - melhor_custo
             melhor_custo_global, melhor_rota_global = melhor_custo, melhor_rota
             geracoes_sem_melhora = 0
+            if verbose:
+                print(
+                    f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f} "
+                    f"| melhoria detectada: {melhoria:.2f}"
+                )
         else:
             geracoes_sem_melhora += 1
-
-        if verbose:
-            print(f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f} "
-                  f"(sem melhora: {geracoes_sem_melhora}/{paciencia})")
+            if verbose:
+                print(
+                    f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f} "
+                    f"(sem melhoria: {geracoes_sem_melhora}/{paciencia})"
+                )
 
         if geracoes_sem_melhora >= paciencia:
             if verbose:
                 print(f"\n⏹  Parada antecipada na geração {geracao}: "
-                      f"sem melhora por {paciencia} gerações consecutivas.")
+                      f"sem melhoria por {paciencia} gerações consecutivas.")
             break
 
         pesos_selecao = 1.0 / np.array(custos)
@@ -367,14 +332,21 @@ def executar_algoritmo_genetico(
             else:
                 filho = list(parent1)
 
-            # Mutação híbrida
+            # Mutação adaptativa
+            taxa_mutacao_atual = probabilidade_mutacao
+            if geracoes_sem_melhora > 20:
+                taxa_mutacao_atual = min(1.0, probabilidade_mutacao * 1.5)
+                if verbose:
+                    print(f"⚡ Mutação adaptativa ativada na geração {geracao}: taxa = {taxa_mutacao_atual:.2f}")
+
             if random.random() < 0.5:
-                filho = mutate(filho, probabilidade_mutacao)
+                filho = mutate(filho, taxa_mutacao_atual)
             else:
-                filho = mutate_segment_inversion(filho, probabilidade_mutacao)
+                filho = mutate_segment_inversion(filho, taxa_mutacao_atual)
 
             nova_populacao.append(filho)
 
         populacao_rotas = nova_populacao
 
     return melhor_rota_global, melhor_custo_global, historico_custos, historico_media
+

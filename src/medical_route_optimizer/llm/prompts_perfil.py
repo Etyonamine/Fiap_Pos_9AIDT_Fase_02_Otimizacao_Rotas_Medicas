@@ -1,180 +1,144 @@
-"""
-Engenharia de Prompts por Perfil de Usuário.
-
-Três perfis especializados para o sistema de distribuição de medicamentos:
-
-    motorista  → instruções operacionais diretas, sequência de paradas, alertas urgentes
-    operador   → monitoramento de execução, restrições VRP, ações corretivas
-    gerente    → KPIs de eficiência, comparação com baseline, insights estratégicos
-
-Cada perfil recebe o mesmo relatório estruturado (dict do gerar_relatorio_rota),
-mas o prompt orienta o modelo a adotar tom, foco e nível de detalhamento adequados
-ao papel do usuário, garantindo respostas úteis e sem alucinações.
-
-Escalabilidade: para adicionar um novo perfil, basta registrá-lo em PERFIS e
-implementar a função de prompt correspondente, sem alterar o restante do sistema.
-"""
-
+# prompts_perfil.py — correção: não usar f-strings para templates que contêm chaves literais
 import json
 from typing import Dict, Any, Callable
 
-
-# ---------------------------------------------------------------------------
-# Registro de perfis (chave de exibição → chave interna)
-# ---------------------------------------------------------------------------
 PERFIS: Dict[str, str] = {
     "🚚 Motorista":  "motorista",
     "🖥️ Operador":   "operador",
     "📊 Gerente":    "gerente",
 }
 
-
-# ---------------------------------------------------------------------------
-# Prompts por perfil
-# ---------------------------------------------------------------------------
-
 def _build_prompt_motorista(dados: str) -> str:
-    """Monta o prompt de motorista a partir do JSON já serializado."""
-    return f"""Você é um assistente de logística hospitalar que prepara o roteiro diário para motoristas de entrega.
+    template = """Você é um assistente de logística hospitalar que prepara o roteiro diário para motoristas de entrega.
 
 PERFIL DO USUÁRIO: Motorista — lê as instruções no dispositivo antes de sair do hospital.
 TOM ESPERADO: direto, sem termos técnicos, fácil de seguir ao volante.
 
 Com base nos dados da rota abaixo, gere um roteiro de entrega claro e numerado em português, contendo:
-
 1. PONTO DE PARTIDA: nome e descrição breve do hospital base.
 2. SEQUÊNCIA DE PARADAS: liste cada parada numerada com:
    - Nome do destino
    - Nível de urgência (🔴 URGENTE se prioridade Alta, 🟡 ATENÇÃO se Média, 🟢 Normal se Baixa)
-   - Tempo estimado de deslocamento até o destino
-   - Tempo de atendimento no local
-3. ALERTAS CRÍTICOS: destaque em negrito qualquer entrega de prioridade ALTA (prioridade 1) e oriente o motorista a não atrasar essas paradas.
-4. RETORNO: instruções de retorno ao hospital base com tempo estimado.
-5. TEMPO TOTAL DA ROTA: informe o tempo total estimado da jornada.
+   - Tempo estimado de deslocamento (minutos)
+   - Tempo estimado de atendimento (minutos)
+3. CHECKLIST OPERACIONAL por parada (apresente-o em texto legível, logo após cada parada), com os itens:
+   - Confirmar chegada
+   - Registrar horário de início
+   - Entregar medicamento/insumo
+   - Coletar assinatura/confirmacao
+   - Registrar horário de saída
+   - Atualizar status no sistema
+4. ALERTAS CRÍTICOS: destaque em negrito qualquer entrega de prioridade ALTA (prioridade 1).
+5. RETORNO: instruções de retorno ao hospital base com tempo estimado.
+6. TEMPO TOTAL DA ROTA: informe o tempo total estimado da jornada.
+7. RESUMO POR PRIORIDADE: número de entregas e tempo total estimado por prioridade.
 
 REGRAS:
 - Responda SOMENTE com base nos dados fornecidos.
-- Não invente endereços, horários ou informações ausentes.
-- Se um veículo tiver rota própria (VRP), gere o roteiro separado por veículo.
-- Use linguagem acessível — o motorista não é especialista em logística.
+- Não invente endereços, horários ou informações ausentes. Se faltar dado, escreva "dado não disponível".
+- Se a solução VRP for inválida (ex.: capacidade/autonomia excedida), escreva "SOLUÇÃO INVÁLIDA — AÇÃO NECESSÁRIA" e liste ações corretivas.
+- Se houver múltiplos veículos, gere roteiro separado por veículo.
+- Ao final, inclua uma seção chamada "PROMPT_USADO" contendo o prompt exato enviado (ou um identificador do prompt).
 
 --- DADOS DA ROTA ---
 {dados}
 --- FIM DOS DADOS ---
 
 Gere o roteiro de entrega agora:"""
+    return template.replace("{dados}", dados)
 
 
 def _build_prompt_operador(dados: str) -> str:
-    """Monta o prompt de operador a partir do JSON já serializado."""
-    return f"""Você é um sistema de apoio a operadores da central de logística hospitalar.
+    template = """Você é um sistema de apoio a operadores da central de logística hospitalar.
 
 PERFIL DO USUÁRIO: Operador — monitora em tempo real a execução das rotas de distribuição.
 TOM ESPERADO: técnico, objetivo, focado em exceções, violações e ações corretivas.
 
 Com base nos dados abaixo, elabore um painel de monitoramento operacional em português, contendo:
-
 1. STATUS GERAL DA OPERAÇÃO
    - Número de veículos em rota
    - Total de pontos de entrega (discriminados por prioridade)
-   - Solução VRP válida ou com violações (capacidade/autonomia por veículo)
-
+   - Indicação se a solução VRP é válida ou inválida (com motivo)
 2. DETALHAMENTO POR VEÍCULO (para cada veículo na solução VRP)
    - Carga atual vs capacidade máxima: ✅ dentro / ❌ excedida
    - Distância percorrida vs autonomia: ✅ dentro / ❌ excedida
    - Lista dos pontos de entrega com prioridade
-
 3. ALERTAS E VIOLAÇÕES
    - Liste qualquer restrição violada (capacidade, autonomia, prioridade crítica tardia)
    - Para cada violação, sugira uma ação corretiva concreta (ex.: reatribuir ponto a outro veículo)
-
 4. QUALIDADE DA SOLUÇÃO
    - Custo otimizado (GA + Two Opt) vs custo baseline (Nearest Neighbor)
    - Percentual de melhoria alcançado
    - Número de gerações necessárias para convergência
-
 5. RECOMENDAÇÕES OPERACIONAIS
    - Pelo menos 2 ajustes que o operador pode fazer para melhorar a execução atual
 
+ADICIONAL (para automação):
+- Ao final, gere um bloco JSON chamado "ACTIONS_SUGGESTED" com ações concretas e estruturadas, por exemplo:
+{
+  "ACTIONS_SUGGESTED": [
+    {"action":"reassign_point","point":"Paciente - Rua do Lago","from_vehicle":2,"to_vehicle":1},
+    {"action":"reduce_load","vehicle":2,"amount":1.5}
+  ],
+  "VALID": false,
+  "REASON": "Veículo 2 excede capacidade (16.5 / 16.0)"
+}
+
 REGRAS:
 - Baseie-se EXCLUSIVAMENTE nos dados fornecidos.
-- Indique claramente quando uma informação não estiver disponível.
+- Indique claramente quando uma informação não estiver disponível ("dado não disponível").
 - Priorize alertas críticos (prioridade 1) no topo da análise.
+- Ao final, inclua "PROMPT_USADO" com o prompt exato enviado.
 
 --- DADOS DA ROTA ---
 {dados}
 --- FIM DOS DADOS ---
 
 Gere o painel de monitoramento agora:"""
+    return template.replace("{dados}", dados)
 
 
 def _build_prompt_gerente(dados: str) -> str:
-    """Monta o prompt de gerente a partir do JSON já serializado."""
-    return f"""Você é um analista sênior de operações logísticas de uma rede hospitalar.
+    template = """Você é um analista sênior de operações logísticas de uma rede hospitalar.
 
 PERFIL DO USUÁRIO: Gerente de Distribuição — toma decisões estratégicas sobre a frota e os processos.
 TOM ESPERADO: executivo, analítico, orientado a KPIs e resultados de negócio.
 
 Com base nos dados abaixo, elabore um relatório gerencial executivo em português, contendo:
-
 1. RESUMO EXECUTIVO (3-5 linhas)
-   - Síntese da operação do dia: rotas realizadas, entregas, eficiência geral.
-
-2. KPIs DE EFICIÊNCIA
-   - Distância total percorrida (km equivalente)
-   - Tempo total estimado da operação (minutos)
-   - Custo de rota otimizado vs. custo baseline (Nearest Neighbor)
-   - Percentual de economia gerado pelo Algoritmo Genético
-   - Utilização de capacidade da frota (% da capacidade total utilizada)
-   - Conformidade de autonomia (% de rotas dentro do limite)
-
-3. ANÁLISE DO PROCESSO DE OTIMIZAÇÃO
-   - Em quantas gerações o GA convergiu
-   - Custo inicial vs. custo final após evolução e refinamento Two Opt
-   - Interpretação da curva de convergência (estagnação precoce, boa diversidade, etc.)
-
-4. DISTRIBUIÇÃO POR PRIORIDADE
-   - Quantos pontos de alta, média e baixa prioridade foram atendidos
-   - Análise se a rota privilegiou corretamente as entregas críticas
-
-5. INSIGHTS ESTRATÉGICOS E RECOMENDAÇÕES
-   - Com base nos padrões identificados, sugira pelo menos 3 ações de melhoria operacional
-     (ex.: ajuste de parâmetros do GA, redistribuição da frota, janelas de tempo, etc.)
-   - Avalie o custo-benefício de adicionar mais um veículo à operação, se aplicável
+2. KPIs DE EFICIÊNCIA (distância total, tempo total, custo otimizado vs baseline, % economia, utilização de capacidade, conformidade de autonomia)
+3. ANÁLISE DO PROCESSO DE OTIMIZAÇÃO (gerações para convergência, custo inicial vs final, interpretação da curva)
+4. DISTRIBUIÇÃO POR PRIORIDADE (quantos pontos de alta/média/baixa prioridade)
+5. INSIGHTS ESTRATÉGICOS E RECOMENDAÇÕES (pelo menos 3 ações de melhoria; avaliar custo-benefício de adicionar veículo)
 
 REGRAS:
 - Baseie-se EXCLUSIVAMENTE nos dados fornecidos.
 - Quando uma métrica não estiver disponível, indique "dado não disponível nesta execução".
 - Evite linguagem técnica de algoritmos — traduza para impacto de negócio.
+- Ao final, inclua "PROMPT_USADO" com o prompt exato enviado.
 
 --- DADOS DA ROTA ---
 {dados}
 --- FIM DOS DADOS ---
 
 Elabore o relatório gerencial agora:"""
+    return template.replace("{dados}", dados)
 
 
-# Wrappers públicos com assinatura relatorio: Dict — mantêm compatibilidade com
-# chamadas diretas (ex.: testes, main.py) sem passar pelo dispatcher.
+# Wrappers públicos
 def prompt_motorista(relatorio: Dict[str, Any]) -> str:
-    """Prompt para o motorista da entrega. Foco: roteiro operacional direto."""
     return _build_prompt_motorista(json.dumps(relatorio, ensure_ascii=False, indent=2))
 
 
 def prompt_operador(relatorio: Dict[str, Any]) -> str:
-    """Prompt para o operador. Foco: monitoramento de restrições VRP e ações corretivas."""
     return _build_prompt_operador(json.dumps(relatorio, ensure_ascii=False, indent=2))
 
 
 def prompt_gerente(relatorio: Dict[str, Any]) -> str:
-    """Prompt para o gerente. Foco: KPIs estratégicos, eficiência e recomendações."""
     return _build_prompt_gerente(json.dumps(relatorio, ensure_ascii=False, indent=2))
 
 
-# ---------------------------------------------------------------------------
-# Dispatcher público
-# ---------------------------------------------------------------------------
-
+# Dispatcher
 _BUILDER_FUNC: Dict[str, Callable[[str], str]] = {
     "motorista": _build_prompt_motorista,
     "operador":  _build_prompt_operador,
@@ -183,28 +147,9 @@ _BUILDER_FUNC: Dict[str, Callable[[str], str]] = {
 
 
 def prompt_por_perfil(chave_exibicao: str, relatorio: Dict[str, Any]) -> str:
-    """
-    Retorna o prompt correto para o perfil selecionado.
-
-    Serializa o relatório em JSON uma única vez e o passa ao construtor do
-    perfil, evitando serialização redundante em chamadas ao dispatcher.
-
-    Parâmetros:
-    - chave_exibicao: chave de exibição conforme definida em PERFIS
-                      (ex.: "🚚 Motorista") ou chave interna (ex.: "motorista")
-    - relatorio: dicionário gerado por gerar_relatorio_rota()
-
-    Retorno:
-    - prompt formatado como string pronto para envio ao LLM
-    """
-    # Aceita tanto a chave de exibição quanto a chave interna
     chave_interna = PERFIS.get(chave_exibicao, chave_exibicao)
     func = _BUILDER_FUNC.get(chave_interna)
     if func is None:
-        raise ValueError(
-            f"Perfil '{chave_exibicao}' não encontrado. "
-            f"Perfis disponíveis: {list(PERFIS.keys())}"
-        )
-    # Serializa uma única vez; o builder recebe a string pronta
+        raise ValueError(f"Perfil '{chave_exibicao}' não encontrado. Perfis disponíveis: {list(PERFIS.keys())}")
     dados_json = json.dumps(relatorio, ensure_ascii=False, indent=2)
     return func(dados_json)

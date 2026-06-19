@@ -20,7 +20,6 @@ def _tempo_deslocamento(distancia: float) -> float:
     """Converte distância em pixels para tempo estimado de deslocamento em minutos."""
     return distancia / VELOCIDADE_MEDIA_PIXELS_POR_MINUTO
 
-
 def gerar_relatorio_rota(
     rota_otimizada: List[PontoEntrega],
     hospital_base: PontoEntrega,
@@ -33,20 +32,8 @@ def gerar_relatorio_rota(
 ) -> Dict[str, Any]:
     """
     Gera um relatório estruturado com os dados da rota otimizada.
-
-    Parâmetros:
-    - rota_otimizada: melhor rota encontrada pelo GA + Two Opt
-    - hospital_base: ponto de origem e retorno
-    - custo_otimizado: custo total da rota otimizada
-    - historico_custos: custo por geração do GA
-    - rota_baseline_nn: rota gerada pelo Nearest Neighbor (baseline)
-    - custo_baseline_nn: custo da rota baseline NN
-    - rotas_vrp: lista de sub-rotas por veículo (opcional)
-    - resumo_vrp: resumo de restrições por veículo gerado por resumo_restricoes_vrp (opcional)
-
-    Retorno:
-    - dicionário estruturado com todas as métricas da rota
     """
+
     rota_completa = [hospital_base] + list(rota_otimizada) + [hospital_base]
     n = len(rota_completa)
 
@@ -55,7 +42,7 @@ def gerar_relatorio_rota(
         calcular_distancia(rota_completa[i], rota_completa[i + 1])
         for i in range(n - 1)
     )
-    tempo_total_estimado = _tempo_deslocamento(distancia_total) + sum(
+    tempo_total_estimado = distancia_total / VELOCIDADE_MEDIA_PIXELS_POR_MINUTO + sum(
         p.tempo_atendimento for p in rota_otimizada
     )
 
@@ -65,7 +52,7 @@ def gerar_relatorio_rota(
     ponto_anterior = hospital_base
     for posicao, ponto in enumerate(rota_otimizada, start=1):
         deslocamento = calcular_distancia(ponto_anterior, ponto)
-        tempo_desloc = _tempo_deslocamento(deslocamento)
+        tempo_desloc = deslocamento / VELOCIDADE_MEDIA_PIXELS_POR_MINUTO
         tempo_acumulado += tempo_desloc + ponto.tempo_atendimento
         sequencia_atendimentos.append({
             "posicao": posicao,
@@ -86,10 +73,13 @@ def gerar_relatorio_rota(
             (custo_baseline_nn - custo_otimizado) / custo_baseline_nn * 100, 2
         )
 
-    # Contagem de pacientes por prioridade
-    alta_prioridade = [p for p in rota_otimizada if p.prioridade == 1]
-    media_prioridade = [p for p in rota_otimizada if p.prioridade == 2]
-    baixa_prioridade = [p for p in rota_otimizada if p.prioridade == 3]
+    # Contagem de melhorias vs estagnações
+    n_geracoes_total = len(historico_custos)
+    n_geracoes_com_melhoria = sum(
+        1 for i in range(1, n_geracoes_total)
+        if historico_custos[i] < historico_custos[i-1]
+    )
+    n_geracoes_sem_melhoria = n_geracoes_total - n_geracoes_com_melhoria
 
     relatorio = {
         "resumo": {
@@ -97,16 +87,16 @@ def gerar_relatorio_rota(
             "distancia_total_pixels": round(distancia_total, 2),
             "tempo_total_estimado_min": round(tempo_total_estimado, 1),
             "custo_otimizado": round(custo_otimizado, 2),
-            "n_geracoes_ga": len(historico_custos),
+            "n_geracoes_ga": n_geracoes_total,
             "custo_inicial_ga": round(historico_custos[0], 2) if historico_custos else None,
             "custo_final_ga": round(historico_custos[-1], 2) if historico_custos else None,
         },
         "origem_retorno": hospital_base.nome,
         "sequencia_atendimentos": sequencia_atendimentos,
         "prioridades": {
-            "alta": [p.nome for p in alta_prioridade],
-            "media": [p.nome for p in media_prioridade],
-            "baixa": [p.nome for p in baixa_prioridade],
+            "alta": [p.nome for p in rota_otimizada if p.prioridade == 1],
+            "media": [p.nome for p in rota_otimizada if p.prioridade == 2],
+            "baixa": [p.nome for p in rota_otimizada if p.prioridade == 3],
         },
         "comparacao_baseline_nn": {
             "custo_baseline_nn": round(custo_baseline_nn, 2) if custo_baseline_nn else None,
@@ -116,6 +106,9 @@ def gerar_relatorio_rota(
         },
         "historico_evolucao": {
             "melhor_custo_por_geracao": [round(c, 2) for c in historico_custos],
+            "n_geracoes_total": n_geracoes_total,
+            "n_geracoes_com_melhoria": n_geracoes_com_melhoria,
+            "n_geracoes_sem_melhoria": n_geracoes_sem_melhoria,
         },
         "vrp": _gerar_secao_vrp(rotas_vrp, resumo_vrp),
     }

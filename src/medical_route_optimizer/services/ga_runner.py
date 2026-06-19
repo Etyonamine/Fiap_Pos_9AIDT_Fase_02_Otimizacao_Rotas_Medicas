@@ -6,6 +6,10 @@ from core.two_opt import two_opt_inversion
 from core.vrp_split import dividir_rotas_vrp, resumo_restricoes_vrp
 from reports.route_report import gerar_relatorio_rota
 from models.resultado_ga import ResultadoGA
+from core.genetic_algorithm import calcular_custo_giant_tour_vrp
+from models.resultado_ga import ResultadoGA
+
+
 
 PROPORCAO_NN = 0.15
 
