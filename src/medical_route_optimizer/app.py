@@ -349,7 +349,7 @@ with tab_valores:
         st.plotly_chart(fig_radar, use_container_width=True)
 
 # ============================================================================ #
-# ABA 3 — Assistente LLM (com bloqueio para Motorista e parsing robusto)
+# ABA 3 — Assistente LLM (Groq apenas, sem chave ou modelo na interface)
 # ============================================================================ #
 with tab_llm:
     st.header("Assistente LLM")
@@ -362,22 +362,12 @@ with tab_llm:
         with col_cfg:
             st.subheader("Configuração")
             perfil_sel = st.selectbox("Perfil do usuário", list(PERFIS.keys()))
-            provider = st.selectbox("Provedor LLM", ["groq", "openai"])
-            api_key = st.text_input(f"Chave de API ({provider.upper()})", type="password")
-            modelo_custom = st.text_input("Modelo (opcional)", placeholder="Ex.: llama-3.3-70b-versatile")
             gerar = st.button("Gerar análise", type="primary", use_container_width=True)
 
         with col_out:
             st.subheader("Análise gerada")
-            if gerar and api_key.strip():
+            if gerar:
                 try:
-                    env_key = "OPENAI_API_KEY" if provider == "openai" else "GROQ_API_KEY"
-                    os.environ[env_key] = api_key.strip()
-                    os.environ["LLM_PROVIDER"] = provider
-                    if modelo_custom.strip():
-                        os.environ["LLM_MODEL"] = modelo_custom.strip()
-
-                    # Preparar relatorio serializável a partir do objeto res
                     rel = getattr(res, "relatorio", None)
                     if rel is None:
                         st.error("Relatório da rota não encontrado no resultado. Verifique a função gerar_relatorio_rota().")
@@ -387,13 +377,12 @@ with tab_llm:
 
                         chave_interna = PERFIS.get(perfil_sel, perfil_sel)
 
-                        # BLOQUEIO: se perfil for motorista e relatorio inválido, NÃO gerar roteiro acionável
+                        # BLOQUEIO: se perfil for motorista e relatorio inválido, não gerar roteiro acionável
                         if chave_interna == "motorista":
                             valid, motivo = relatorio_valido(rel)
                             if not valid and not st.session_state.get("liberacao_manual", False):
                                 st.error(f"SOLUÇÃO INVÁLIDA — AÇÃO NECESSÁRIA: {motivo}")
                                 st.markdown("**Checklist informativo (NÃO EXECUTAR até correção):**")
-                                # Exibir checklist informativo em texto (não JSON)
                                 for v in rel.get("veiculos", []):
                                     for p in v.get("rota", []):
                                         st.markdown(f"- **{p.get('nome')}**")
@@ -403,14 +392,14 @@ with tab_llm:
                                         st.markdown("  - Coletar assinatura/confirmacao")
                                         st.markdown("  - Registrar horário de saída")
                                         st.markdown("  - Atualizar status no sistema")
-                                # Mostrar ações sugeridas se já existirem (exibir com segurança)
+
                                 if rel.get("ACTIONS_SUGGESTED"):
                                     st.markdown("**Ações sugeridas (automação):**")
                                     try:
                                         st.json(rel["ACTIONS_SUGGESTED"])
                                     except Exception:
                                         st.text(json.dumps(rel["ACTIONS_SUGGESTED"], ensure_ascii=False))
-                                # Botões para operador aplicar ações ou forçar liberação
+
                                 st.markdown("---")
                                 st.write("Ações disponíveis:")
                                 if st.button("Aplicar ações sugeridas e recomputar GA"):
@@ -421,6 +410,7 @@ with tab_llm:
                                             st.success("Ações aplicadas localmente. Reexecute o GA para recalcular a solução.")
                                     else:
                                         st.info("Nenhuma ação sugerida disponível para aplicar.")
+
                                 st.markdown("**Forçar liberação (somente com autorização)**")
                                 if st.button("Solicitar liberação manual"):
                                     justificativa = st.text_area("Justificativa para liberação (obrigatório)")
@@ -433,58 +423,33 @@ with tab_llm:
                                         })
                                         st.session_state["liberacao_manual"] = True
                                         st.success("Liberação manual registrada. Agora você pode gerar o roteiro (use 'Gerar análise' novamente).")
-                                # Não gerar roteiro enquanto inválido e sem liberação
+
                             else:
                                 # Se válido ou liberado manualmente, gerar roteiro normalmente
                                 prompt = prompt_por_perfil(perfil_sel, rel)
-                                from llm.llm_client import chamar_llm                                
-                                try:
-                                    # bloco amplo: chamar LLM e todo o processamento que vem depois
-                                    resp = chamar_llm(prompt, max_tokens=2048, return_metadata=True)
-                                    # processamento que normalmente faz com resp (ex.: texto = resp["text"]; parsing; st.markdown(...))
-                                    texto = resp["text"] if isinstance(resp, dict) else resp
-                                    # exemplo de processamento que pode falhar:
-                                    # st.markdown(texto)
-                                    # parsing de JSON, exibição de ACTIONS_SUGGESTED, etc.
-                                    # coloque aqui TODO o código que normalmente executa após chamar_llm
-                                except Exception as e:
-                                    tb = traceback.format_exc()
-                                    # exibir traceback completo na UI e salvar em arquivo para análise
-                                    st.error("Traceback completo (copie e cole aqui):")
-                                    st.text(tb)
-                                    with open("llm_error_traceback.log", "a", encoding="utf-8") as f:
-                                        f.write(tb + "\n\n")
-                                    # re-raise se quiser parar a execução
-                                    raise
-                                # Exibir texto retornado pelo LLM sem formatar com placeholders
-                                if isinstance(texto, str):
-                                    st.markdown(texto)
-                                else:
-                                    st.text(json.dumps(texto, ensure_ascii=False))
+                                from llm.llm_client import chamar_llm
+                                resp = chamar_llm(prompt, max_tokens=2048, return_metadata=True)
+                                texto = resp["text"] if isinstance(resp, dict) else resp
+                                st.markdown(texto if isinstance(texto, str) else json.dumps(texto, ensure_ascii=False))
+
                                 meta = resp.get("meta") if isinstance(resp, dict) else None
                                 if meta:
                                     st.session_state["historico_execucoes_meta"].append({
                                         "timestamp": pd.Timestamp.now(),
-                                        "provider": meta.get("provider"),
+                                        "provider": "groq",
                                         "model": meta.get("model"),
                                         "prompt": meta.get("prompt")[:10000]
                                     })
-                                # parsing robusto: extrair primeiro JSON válido e, se for ACTIONS_SUGGESTED ou TEMPO_POR_PRIORIDADE, armazenar
+
+                                # Parsing robusto: extrair primeiro JSON válido
                                 try:
                                     maybe = extract_first_json(texto if isinstance(texto, str) else json.dumps(texto, ensure_ascii=False))
                                     if maybe:
-                                        # se o JSON extraído contém ACTIONS_SUGGESTED, use-o
                                         if isinstance(maybe, dict) and "ACTIONS_SUGGESTED" in maybe:
                                             rel["ACTIONS_SUGGESTED"] = maybe["ACTIONS_SUGGESTED"]
-                                        else:
-                                            # se o JSON extraído parece ser o próprio bloco ACTIONS_SUGGESTED
-                                            if isinstance(maybe, dict) and ("VALID" in maybe or "ACTIONS_SUGGESTED" in maybe):
-                                                rel["ACTIONS_SUGGESTED"] = maybe
-                                            # se for TEMPO_POR_PRIORIDADE
-                                            if isinstance(maybe, dict) and any(k in maybe for k in ["alta_min", "media_min", "baixa_min", "alta", "media", "baixa"]):
-                                                rel.setdefault("totais", {})["tempo_por_prioridade_min"] = maybe
+                                        elif isinstance(maybe, dict) and any(k in maybe for k in ["alta_min", "media_min", "baixa_min", "alta", "media", "baixa"]):
+                                            rel.setdefault("totais", {})["tempo_por_prioridade_min"] = maybe
                                 except Exception:
-                                    # parsing best-effort; não falhar a UI
                                     pass
 
                         else:
@@ -493,24 +458,15 @@ with tab_llm:
                             from llm.llm_client import chamar_llm
                             resp = chamar_llm(prompt, max_tokens=2048, return_metadata=True)
                             texto = resp["text"] if isinstance(resp, dict) else resp
-                            if isinstance(texto, str):
-                                st.markdown(texto)
-                            else:
-                                st.text(json.dumps(texto, ensure_ascii=False))
+                            st.markdown(texto if isinstance(texto, str) else json.dumps(texto, ensure_ascii=False))
                             meta = resp.get("meta") if isinstance(resp, dict) else None
                             if meta:
                                 st.session_state["historico_execucoes_meta"].append({
                                     "timestamp": pd.Timestamp.now(),
-                                    "provider": meta.get("provider"),
+                                    "provider": "groq",
                                     "model": meta.get("model"),
                                     "prompt": meta.get("prompt")[:10000]
                                 })
 
                 except Exception as e:
-                    # usar repr para evitar formatação insegura
                     st.error(f"Erro ao gerar análise: {repr(e)}")
-                finally:
-                    try:
-                        os.environ.pop(env_key, None)
-                    except Exception:
-                        pass
