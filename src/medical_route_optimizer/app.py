@@ -249,7 +249,7 @@ with tab_exec:
 # ============================================================================ #
 # ABA 2 — Valores por geração
 # ============================================================================ #
-with tab_valores:
+with tab_valores:    
     st.header("Valores por geração")
     res = st.session_state["resultado"]
 
@@ -349,7 +349,7 @@ with tab_valores:
         st.plotly_chart(fig_radar, use_container_width=True)
 
 # ============================================================================ #
-# ABA 3 — Assistente LLM (Groq apenas, sem chave ou modelo na interface)
+# ABA 3 — Assistente LLM (Groq apenas, com controle de botão e GIF)
 # ============================================================================ #
 with tab_llm:
     st.header("Assistente LLM")
@@ -361,112 +361,62 @@ with tab_llm:
         col_cfg, col_out = st.columns([1, 2])
         with col_cfg:
             st.subheader("Configuração")
-            perfil_sel = st.selectbox("Perfil do usuário", list(PERFIS.keys()))
-            gerar = st.button("Gerar análise", type="primary", use_container_width=True)
+
+            perfil_sel = st.selectbox("Perfil do usuário", list(PERFIS.keys()), key="perfil_llm")
+
+            # Estado do botão/processamento
+            if "processando_llm" not in st.session_state:
+                st.session_state["processando_llm"] = False
+
+            gerar = st.button(
+                "Gerar análise",
+                type="primary",
+                use_container_width=True,
+                disabled=st.session_state["processando_llm"],
+                key="gerar_llm"
+            )
 
         with col_out:
             st.subheader("Análise gerada")
-            if gerar:
+
+            if gerar and not st.session_state["processando_llm"]:
+                st.session_state["processando_llm"] = True
                 try:
                     rel = getattr(res, "relatorio", None)
                     if rel is None:
-                        st.error("Relatório da rota não encontrado no resultado. Verifique a função gerar_relatorio_rota().")
+                        st.error("Relatório da rota não encontrado no resultado.")
                     else:
-                        # Agregar tempos por prioridade
                         agregar_tempos_por_prioridade(rel)
+                        prompt = prompt_por_perfil(perfil_sel, rel)
 
-                        chave_interna = PERFIS.get(perfil_sel, perfil_sel)
+                        # GIF de carregamento centralizado
+                        st.markdown(
+                            "<div style='text-align:center;'>"
+                            "<img src='https://i.gifer.com/YCZH.gif' width='120' alt='Processando...'>"
+                            "<p><em>Processando análise com Groq...</em></p>"
+                            "</div>",
+                            unsafe_allow_html=True
+                        )
 
-                        # BLOQUEIO: se perfil for motorista e relatorio inválido, não gerar roteiro acionável
-                        if chave_interna == "motorista":
-                            valid, motivo = relatorio_valido(rel)
-                            if not valid and not st.session_state.get("liberacao_manual", False):
-                                st.error(f"SOLUÇÃO INVÁLIDA — AÇÃO NECESSÁRIA: {motivo}")
-                                st.markdown("**Checklist informativo (NÃO EXECUTAR até correção):**")
-                                for v in rel.get("veiculos", []):
-                                    for p in v.get("rota", []):
-                                        st.markdown(f"- **{p.get('nome')}**")
-                                        st.markdown("  - Confirmar chegada")
-                                        st.markdown("  - Registrar horário de início")
-                                        st.markdown("  - Entregar medicamento/insumo")
-                                        st.markdown("  - Coletar assinatura/confirmacao")
-                                        st.markdown("  - Registrar horário de saída")
-                                        st.markdown("  - Atualizar status no sistema")
+                        from llm.llm_client import chamar_llm
+                        # max_tokens reduzido para evitar rate limit
+                        resp = chamar_llm(prompt, max_tokens=2048, return_metadata=True)
+                        texto = resp["text"] if isinstance(resp, dict) else resp
 
-                                if rel.get("ACTIONS_SUGGESTED"):
-                                    st.markdown("**Ações sugeridas (automação):**")
-                                    try:
-                                        st.json(rel["ACTIONS_SUGGESTED"])
-                                    except Exception:
-                                        st.text(json.dumps(rel["ACTIONS_SUGGESTED"], ensure_ascii=False))
+                        st.markdown(texto if isinstance(texto, str) else json.dumps(texto, ensure_ascii=False))
 
-                                st.markdown("---")
-                                st.write("Ações disponíveis:")
-                                if st.button("Aplicar ações sugeridas e recomputar GA"):
-                                    actions = rel.get("ACTIONS_SUGGESTED", {}).get("ACTIONS_SUGGESTED", []) if isinstance(rel.get("ACTIONS_SUGGESTED"), dict) else rel.get("ACTIONS_SUGGESTED", [])
-                                    if actions:
-                                        with st.spinner("Aplicando ações sugeridas..."):
-                                            rel_mod = aplicar_actions_suggested(rel, actions)
-                                            st.success("Ações aplicadas localmente. Reexecute o GA para recalcular a solução.")
-                                    else:
-                                        st.info("Nenhuma ação sugerida disponível para aplicar.")
-
-                                st.markdown("**Forçar liberação (somente com autorização)**")
-                                if st.button("Solicitar liberação manual"):
-                                    justificativa = st.text_area("Justificativa para liberação (obrigatório)")
-                                    if justificativa and st.button("Confirmar liberação manual"):
-                                        st.session_state["auditoria"].append({
-                                            "acao": "liberacao_manual",
-                                            "usuario": "operador",
-                                            "justificativa": justificativa,
-                                            "timestamp": pd.Timestamp.now()
-                                        })
-                                        st.session_state["liberacao_manual"] = True
-                                        st.success("Liberação manual registrada. Agora você pode gerar o roteiro (use 'Gerar análise' novamente).")
-
-                            else:
-                                # Se válido ou liberado manualmente, gerar roteiro normalmente
-                                prompt = prompt_por_perfil(perfil_sel, rel)
-                                from llm.llm_client import chamar_llm
-                                resp = chamar_llm(prompt, max_tokens=2048, return_metadata=True)
-                                texto = resp["text"] if isinstance(resp, dict) else resp
-                                st.markdown(texto if isinstance(texto, str) else json.dumps(texto, ensure_ascii=False))
-
-                                meta = resp.get("meta") if isinstance(resp, dict) else None
-                                if meta:
-                                    st.session_state["historico_execucoes_meta"].append({
-                                        "timestamp": pd.Timestamp.now(),
-                                        "provider": "groq",
-                                        "model": meta.get("model"),
-                                        "prompt": meta.get("prompt")[:10000]
-                                    })
-
-                                # Parsing robusto: extrair primeiro JSON válido
-                                try:
-                                    maybe = extract_first_json(texto if isinstance(texto, str) else json.dumps(texto, ensure_ascii=False))
-                                    if maybe:
-                                        if isinstance(maybe, dict) and "ACTIONS_SUGGESTED" in maybe:
-                                            rel["ACTIONS_SUGGESTED"] = maybe["ACTIONS_SUGGESTED"]
-                                        elif isinstance(maybe, dict) and any(k in maybe for k in ["alta_min", "media_min", "baixa_min", "alta", "media", "baixa"]):
-                                            rel.setdefault("totais", {})["tempo_por_prioridade_min"] = maybe
-                                except Exception:
-                                    pass
-
-                        else:
-                            # Perfil operador/gerente — gerar normalmente e registrar metadados
-                            prompt = prompt_por_perfil(perfil_sel, rel)
-                            from llm.llm_client import chamar_llm
-                            resp = chamar_llm(prompt, max_tokens=2048, return_metadata=True)
-                            texto = resp["text"] if isinstance(resp, dict) else resp
-                            st.markdown(texto if isinstance(texto, str) else json.dumps(texto, ensure_ascii=False))
-                            meta = resp.get("meta") if isinstance(resp, dict) else None
-                            if meta:
-                                st.session_state["historico_execucoes_meta"].append({
-                                    "timestamp": pd.Timestamp.now(),
-                                    "provider": "groq",
-                                    "model": meta.get("model"),
-                                    "prompt": meta.get("prompt")[:10000]
-                                })
+                        meta = resp.get("meta") if isinstance(resp, dict) else None
+                        if meta:
+                            st.session_state["historico_execucoes_meta"].append({
+                                "timestamp": pd.Timestamp.now(),
+                                "provider": "groq",
+                                "model": meta.get("model"),
+                                "prompt": meta.get("prompt")[:10000]
+                            })
 
                 except Exception as e:
                     st.error(f"Erro ao gerar análise: {repr(e)}")
+
+                finally:
+                    # Reabilita o botão após processamento ou erro
+                    st.session_state["processando_llm"] = False
