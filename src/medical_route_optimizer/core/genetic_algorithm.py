@@ -30,13 +30,14 @@ from core.route_calculator import calcular_distancia, calcular_distancia_rota
 from core.fitness_calculator import calcular_custo_rota, calcular_custo_giant_tour_vrp
 from core.population_helper import gerar_populacao_aleatoria, ordenar_populacao
 from core.genetic_operator import mutate, mutate_segment_inversion, order_crossover, pmx_crossover
+import numpy as np
 
 # ---------------------------------------------------------------------------
 # Constantes
 # ---------------------------------------------------------------------------
-FATOR_PENALIDADE_PRIORIDADE = 5.0    # peso da penalidade de prioridade no custo
-FATOR_PENALIDADE_CAPACIDADE = 17.0  # penalidade por unidade de carga acima da capacidade
-FATOR_PENALIDADE_AUTONOMIA  = 1.0    # penalidade por pixel percorrido além da autonomia
+FATOR_PENALIDADE_PRIORIDADE = 2.0    # peso da penalidade de prioridade no custo
+FATOR_PENALIDADE_CAPACIDADE = 5.0  # penalidade por unidade de carga acima da capacidade
+FATOR_PENALIDADE_AUTONOMIA  = 1.5    # penalidade por pixel percorrido além da autonomia
 
 
 # ---------------------------------------------------------------------------
@@ -46,21 +47,24 @@ def executar_algoritmo_genetico(
     locais_entrega: List[PontoEntrega],
     hospital_base: PontoEntrega,
     populacao_inicial: List[List[PontoEntrega]],
-    n_geracoes: int = 200,
     probabilidade_mutacao: float = 0.4,
     probabilidade_crossover: float = 1.0,
     tamanho_elite: int = 10,
     paciencia: int = 150,
-    tolerancia: float = 1e-6,
+    tolerancia: float = 1e-4,
     n_veiculos: Optional[int] = None,
     capacidade_veiculo: Optional[float] = None,
     autonomia_veiculo: Optional[float] = None,
     fator_penalidade: float = FATOR_PENALIDADE_PRIORIDADE,
     fator_penalidade_capacidade: float = FATOR_PENALIDADE_CAPACIDADE,
     fator_penalidade_autonomia: float = FATOR_PENALIDADE_AUTONOMIA,
-    verbose: bool = True
+    verbose: bool = True,
+    limite_tempo: Optional[int] = 120  # tempo máximo em segundos
 ) -> Tuple[List[PontoEntrega], float, List[float], List[float]]:
     import numpy as np
+    import time
+
+    inicio = time.time()
 
     # Fitness adaptado para VRP
     _vrp_mode = n_veiculos is not None and (
@@ -95,8 +99,10 @@ def executar_algoritmo_genetico(
     melhor_custo_global = custos_iniciais[idx_melhor]
     melhor_rota_global = populacao_rotas[idx_melhor]
     geracoes_sem_melhora = 0
+    geracao = 0
 
-    for geracao in range(1, n_geracoes + 1):
+    while True:  # loop infinito até critério híbrido parar
+        geracao += 1
         custos = [_custo(rota) for rota in populacao_rotas]
         populacao_rotas, custos = ordenar_populacao(populacao_rotas, custos)
 
@@ -109,26 +115,26 @@ def executar_algoritmo_genetico(
             melhor_custo_global, melhor_rota_global = melhor_custo, melhor_rota
             geracoes_sem_melhora = 0
             if verbose:
-                print(
-                    f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f} "
-                    f"| melhoria detectada: {melhoria:.2f}"
-                )
+                print(f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f} | melhoria detectada: {melhoria:.2f}")
         else:
             geracoes_sem_melhora += 1
             if verbose:
-                print(
-                    f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f} "
-                    f"(sem melhoria: {geracoes_sem_melhora}/{paciencia})"
-                )
+                print(f"Geração {geracao:>4}: melhor custo = {melhor_custo:.2f} (sem melhoria: {geracoes_sem_melhora}/{paciencia})")
 
+        # Critérios híbridos de parada
         if geracoes_sem_melhora >= paciencia:
-            if verbose:
-                print(f"\n⏹  Parada antecipada na geração {geracao}: "
-                      f"sem melhoria por {paciencia} gerações consecutivas.")
+            print(f"\n⏹  Parada antecipada na geração {geracao}: sem melhoria por {paciencia} gerações consecutivas.")
+            break
+        if np.std(custos) < 1e-3:
+            print(f"\n⏹  Parada antecipada na geração {geracao}: população convergiu (baixa diversidade).")
+            break
+        if limite_tempo is not None and (time.time() - inicio > limite_tempo):
+            print(f"\n⏹  Parada antecipada na geração {geracao}: limite de tempo atingido ({limite_tempo}s).")
             break
 
+        # Seleção com elitismo
         pesos_selecao = 1.0 / np.array(custos)
-        nova_populacao = [melhor_rota]  # elitismo
+        nova_populacao = populacao_rotas[:tamanho_elite]
 
         while len(nova_populacao) < len(populacao_rotas):
             parent1, parent2 = random.choices(populacao_rotas, weights=pesos_selecao, k=2)
@@ -137,10 +143,7 @@ def executar_algoritmo_genetico(
 
             # Crossover híbrido
             if random.random() < probabilidade_crossover:
-                if random.random() < 0.5:
-                    filho = order_crossover(parent1, parent2)
-                else:
-                    filho = pmx_crossover(parent1, parent2)
+                filho = order_crossover(parent1, parent2) if random.random() < 0.5 else pmx_crossover(parent1, parent2)
             else:
                 filho = list(parent1)
 
@@ -151,12 +154,15 @@ def executar_algoritmo_genetico(
                 if verbose:
                     print(f"⚡ Mutação adaptativa ativada na geração {geracao}: taxa = {taxa_mutacao_atual:.2f}")
 
-            if random.random() < 0.5:
-                filho = mutate(filho, taxa_mutacao_atual)
-            else:
-                filho = mutate_segment_inversion(filho, taxa_mutacao_atual)
-
+            filho = mutate(filho, taxa_mutacao_atual) if random.random() < 0.5 else mutate_segment_inversion(filho, taxa_mutacao_atual)
             nova_populacao.append(filho)
+
+        # Reinicialização parcial
+        if geracoes_sem_melhora > paciencia // 2:
+            if verbose:
+                print(f"🔄 Reinicialização parcial na geração {geracao}: adicionando novos indivíduos.")
+            for _ in range(len(populacao_rotas) // 4):
+                nova_populacao.append(random.sample(locais_entrega, len(locais_entrega)))
 
         populacao_rotas = nova_populacao
 

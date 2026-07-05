@@ -195,8 +195,7 @@ if executar or (auto_executar and st.session_state["resultado"] is None):
     with st.spinner("⚙️ Executando Algoritmo Genético…"):
         try:
             st.session_state["resultado"] = run_ga(
-                tamanho_pop=int(tamanho_pop),
-                n_geracoes=int(n_geracoes),
+                tamanho_pop=int(tamanho_pop),                
                 taxa_crossover=taxa_crossover,
                 taxa_mutacao=taxa_mutacao,
                 pesos=pesos,

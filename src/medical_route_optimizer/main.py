@@ -61,7 +61,7 @@ from llm.prompts import (
 # ---------------------------------------------------------------------------
 TAMANHO_POPULACAO = 150
 N_GERACOES = 200        # limite máximo de gerações
-PACIENCIA = 50          # gerações sem melhora para parada antecipada
+PACIENCIA = 150          # gerações sem melhora para parada antecipada
 PROBABILIDADE_MUTACAO = 0.3
 PROPORCAO_NN = 0.15  # 15% da população inicial gerada por Nearest Neighbor
 
@@ -147,8 +147,7 @@ def main():
     melhor_rota_ga, custo_ga, historico, _ = executar_algoritmo_genetico(
         locais_entrega=locais_entrega,
         hospital_base=hospital_base,
-        populacao_inicial=populacao_inicial,
-        n_geracoes=N_GERACOES,
+        populacao_inicial=populacao_inicial,        
         probabilidade_mutacao=PROBABILIDADE_MUTACAO,
         paciencia=PACIENCIA,
         capacidade_veiculo=CAPACIDADE_VEICULO,
