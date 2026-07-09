@@ -8,7 +8,7 @@ padronizado, pronto para consumo pela camada de integração com LLM.
 from typing import List, Dict, Any, Optional
 
 from  data.delivery_points import PontoEntrega, PRIORIDADE_LABEL
-from  core.genetic_algorithm import calcular_distancia
+from  core.route_calculator import calcular_distancia
 
 
 # Velocidade média estimada para cálculo de tempo de deslocamento (km/h → pixels/min)

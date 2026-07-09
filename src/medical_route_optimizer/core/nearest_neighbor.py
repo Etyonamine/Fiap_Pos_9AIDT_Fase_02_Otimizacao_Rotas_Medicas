@@ -16,8 +16,8 @@ Uso no pipeline:
 from typing import List, Tuple
 
 from data.delivery_points import PontoEntrega
-from core.genetic_algorithm import calcular_distancia, calcular_custo_rota
-
+from core.route_calculator import calcular_distancia
+from core.fitness_calculator import calcular_custo_rota
 
 def nearest_neighbor(
     locais_entrega: List[PontoEntrega],

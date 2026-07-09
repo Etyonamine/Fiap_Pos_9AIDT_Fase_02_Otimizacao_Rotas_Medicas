@@ -20,17 +20,12 @@ Função de custo (fitness):
 """
 
 import random
-import math
-import copy
 from typing import List, Optional, Tuple
 
 from data.delivery_points import PontoEntrega
 from core.genetic_operator import order_crossover, mutate, mutate_segment_inversion, pmx_crossover
-from core.route_calculator import calcular_distancia, calcular_distancia_rota
 from core.fitness_calculator import calcular_custo_rota, calcular_custo_giant_tour_vrp
-from core.population_helper import gerar_populacao_aleatoria, ordenar_populacao
-from core.genetic_operator import mutate, mutate_segment_inversion, order_crossover, pmx_crossover
-import numpy as np
+from core.population_helper import ordenar_populacao
 
 # ---------------------------------------------------------------------------
 # Constantes

@@ -22,10 +22,8 @@ Referências:
 from typing import List, Optional, Tuple
 
 from data.delivery_points import PontoEntrega
-from core.genetic_algorithm import (
-    calcular_distancia,
-    calcular_custo_rota,
-)
+from core.fitness_calculator import calcular_custo_rota
+from core.route_calculator import calcular_distancia
 
 
 def dividir_rotas_vrp(

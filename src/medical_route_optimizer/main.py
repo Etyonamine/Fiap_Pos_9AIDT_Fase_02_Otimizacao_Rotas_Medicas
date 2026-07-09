@@ -35,8 +35,10 @@ from data.delivery_points import (
     get_pontos_entrega_sem_origem,
     PRIORIDADE_LABEL,
 )
-from core.genetic_algorithm import (
-    gerar_populacao_aleatoria,
+from core.population_helper import (
+    gerar_populacao_aleatoria
+)
+from core.genetic_algorithm import (    
     executar_algoritmo_genetico,
 )
 from core.nearest_neighbor import (
