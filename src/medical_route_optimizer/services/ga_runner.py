@@ -19,9 +19,7 @@ def run_ga(tamanho_pop: int, taxa_crossover: float,
     """Executa o pipeline completo de otimização e retorna um objeto ResultadoGA."""
     hospital_base = get_hospital_base()
     locais = get_pontos_entrega_sem_origem()
-    pesos_efetivos = list(pesos[:3])
-    while len(pesos_efetivos) < 3:
-        pesos_efetivos.append(1.0)
+    pesos_efetivos = (list(pesos) + [1.0, 1.0, 1.0])[:3]
 
     # População inicial híbrida
     n_nn = max(1, int(tamanho_pop * PROPORCAO_NN))
@@ -38,6 +36,7 @@ def run_ga(tamanho_pop: int, taxa_crossover: float,
         populacao_inicial=pop_inicial,
         probabilidade_mutacao=taxa_mutacao,
         probabilidade_crossover=taxa_crossover,
+        paciencia=150,
         n_veiculos=n_veiculos,
         capacidade_veiculo=capacidade,
         autonomia_veiculo=autonomia,
