@@ -20,7 +20,7 @@ def test_run_ga_returns_resultado(monkeypatch):
     monkeypatch.setattr("services.ga_runner.gerar_relatorio_rota",
                         lambda *args, **kwargs: {"comparacao_baseline_nn": {"economia_percentual": 50}})
 
-    res = run_ga(10, 5, 0.8, 0.1, [1, 10, 500, 3], 2, 16, 1400)
+    res = run_ga(10, 0.8, 0.1, [1, 10, 500, 3], 2, 16, 1400)
     assert isinstance(res, ResultadoGA)
     assert res.custo_final == 50
     assert res.custo_nn == 120

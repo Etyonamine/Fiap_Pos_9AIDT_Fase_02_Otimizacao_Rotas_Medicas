@@ -12,13 +12,19 @@ from models.resultado_ga import ResultadoGA
 
 
 PROPORCAO_NN = 0.15
+DEFAULT_PACIENCIA = 150
 
-def run_ga(tamanho_pop: int, n_geracoes: int, taxa_crossover: float,
+def run_ga(tamanho_pop: int, taxa_crossover: float,
            taxa_mutacao: float, pesos: List[float], n_veiculos: int,
            capacidade: float, autonomia: float) -> ResultadoGA:
-    """Executa o pipeline completo de otimização e retorna um objeto ResultadoGA."""
+    """Executa o pipeline completo de otimização e retorna um objeto ResultadoGA.
+
+    Mapeamento de pesos: [prioridade, capacidade, autonomia].
+    Valores excedentes são ignorados e faltantes recebem 1.0.
+    """
     hospital_base = get_hospital_base()
     locais = get_pontos_entrega_sem_origem()
+    pesos_efetivos = (list(pesos) + [1.0, 1.0, 1.0])[:3]
 
     # População inicial híbrida
     n_nn = max(1, int(tamanho_pop * PROPORCAO_NN))
@@ -35,13 +41,13 @@ def run_ga(tamanho_pop: int, n_geracoes: int, taxa_crossover: float,
         populacao_inicial=pop_inicial,        
         probabilidade_mutacao=taxa_mutacao,
         probabilidade_crossover=taxa_crossover,
-        paciencia=max(20, int(n_geracoes * 0.25)),
+        paciencia=DEFAULT_PACIENCIA,
         n_veiculos=n_veiculos,
         capacidade_veiculo=capacidade,
         autonomia_veiculo=autonomia,
-        fator_penalidade=pesos[1],
-        fator_penalidade_capacidade=pesos[2],
-        fator_penalidade_autonomia=pesos[3],
+        fator_penalidade=pesos_efetivos[0],
+        fator_penalidade_capacidade=pesos_efetivos[1],
+        fator_penalidade_autonomia=pesos_efetivos[2],
     )
 
     # Two Opt
