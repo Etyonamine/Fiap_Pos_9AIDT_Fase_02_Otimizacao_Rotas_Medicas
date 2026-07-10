@@ -16,7 +16,11 @@ PROPORCAO_NN = 0.15
 def run_ga(tamanho_pop: int, taxa_crossover: float,
            taxa_mutacao: float, pesos: List[float], n_veiculos: int,
            capacidade: float, autonomia: float) -> ResultadoGA:
-    """Executa o pipeline completo de otimização e retorna um objeto ResultadoGA."""
+    """Executa o pipeline completo de otimização e retorna um objeto ResultadoGA.
+
+    Mapeamento de pesos: [prioridade, capacidade, autonomia].
+    Valores excedentes são ignorados.
+    """
     hospital_base = get_hospital_base()
     locais = get_pontos_entrega_sem_origem()
     pesos_efetivos = (list(pesos) + [1.0, 1.0, 1.0])[:3]
