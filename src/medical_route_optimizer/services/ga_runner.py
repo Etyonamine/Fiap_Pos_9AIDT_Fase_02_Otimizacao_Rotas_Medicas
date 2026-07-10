@@ -12,6 +12,7 @@ from models.resultado_ga import ResultadoGA
 
 
 PROPORCAO_NN = 0.15
+DEFAULT_PACIENCIA = 150
 
 def run_ga(tamanho_pop: int, taxa_crossover: float,
            taxa_mutacao: float, pesos: List[float], n_veiculos: int,
@@ -19,7 +20,7 @@ def run_ga(tamanho_pop: int, taxa_crossover: float,
     """Executa o pipeline completo de otimização e retorna um objeto ResultadoGA.
 
     Mapeamento de pesos: [prioridade, capacidade, autonomia].
-    Valores excedentes são ignorados.
+    Valores excedentes são ignorados e faltantes recebem 1.0.
     """
     hospital_base = get_hospital_base()
     locais = get_pontos_entrega_sem_origem()
@@ -40,7 +41,7 @@ def run_ga(tamanho_pop: int, taxa_crossover: float,
         populacao_inicial=pop_inicial,
         probabilidade_mutacao=taxa_mutacao,
         probabilidade_crossover=taxa_crossover,
-        paciencia=150,
+        paciencia=DEFAULT_PACIENCIA,
         n_veiculos=n_veiculos,
         capacidade_veiculo=capacidade,
         autonomia_veiculo=autonomia,
