@@ -38,7 +38,7 @@ def run_ga(tamanho_pop: int, taxa_crossover: float,
     melhor_rota, melhor_custo, hist_best, hist_mean = executar_algoritmo_genetico(
         locais_entrega=locais,
         hospital_base=hospital_base,
-        populacao_inicial=pop_inicial,
+        populacao_inicial=pop_inicial,        
         probabilidade_mutacao=taxa_mutacao,
         probabilidade_crossover=taxa_crossover,
         paciencia=DEFAULT_PACIENCIA,
