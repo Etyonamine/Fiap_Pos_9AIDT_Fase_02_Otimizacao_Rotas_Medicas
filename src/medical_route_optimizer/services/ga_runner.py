@@ -13,7 +13,7 @@ from models.resultado_ga import ResultadoGA
 
 PROPORCAO_NN = 0.15
 
-def run_ga(tamanho_pop: int, n_geracoes: int, taxa_crossover: float,
+def run_ga(tamanho_pop: int, taxa_crossover: float,
            taxa_mutacao: float, pesos: List[float], n_veiculos: int,
            capacidade: float, autonomia: float) -> ResultadoGA:
     """Executa o pipeline completo de otimização e retorna um objeto ResultadoGA."""
@@ -33,16 +33,14 @@ def run_ga(tamanho_pop: int, n_geracoes: int, taxa_crossover: float,
         locais_entrega=locais,
         hospital_base=hospital_base,
         populacao_inicial=pop_inicial,
-        n_geracoes=n_geracoes,
         probabilidade_mutacao=taxa_mutacao,
         probabilidade_crossover=taxa_crossover,
-        paciencia=max(20, int(n_geracoes * 0.25)),
         n_veiculos=n_veiculos,
         capacidade_veiculo=capacidade,
         autonomia_veiculo=autonomia,
-        fator_penalidade=pesos[1],
-        fator_penalidade_capacidade=pesos[2],
-        fator_penalidade_autonomia=pesos[3],
+        fator_penalidade=pesos[0],
+        fator_penalidade_capacidade=pesos[1],
+        fator_penalidade_autonomia=pesos[2],
     )
 
     # Two Opt
