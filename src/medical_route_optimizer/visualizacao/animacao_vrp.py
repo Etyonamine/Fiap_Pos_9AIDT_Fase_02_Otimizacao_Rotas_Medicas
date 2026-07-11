@@ -49,8 +49,8 @@ class AnimacaoVRP:
         # Hospital base
         ax.scatter(self.hospital_base.coords[0], self.hospital_base.coords[1],
                 c='blue', s=80, marker='s', label="Hospital Base")
-        ax.text(self.hospital_base.coords[0] + 5, self.hospital_base.coords[1] + 5,
-                "Hospital Base", fontsize=9, color="blue")
+       # ax.text(self.hospital_base.coords[0] + 5, self.hospital_base.coords[1] + 5,
+       #         "Hospital Base", fontsize=9, color="blue")
 
         # Nomes dos pontos
         for p in self.locais_entrega:
@@ -58,7 +58,6 @@ class AnimacaoVRP:
 
         ax.set_title(titulo)
         ax.legend()
-
     def desenhar_rota(self, ax, rota, titulo):
         ax.clear()
         rota_completa = [self.hospital_base] + rota + [self.hospital_base]
@@ -72,9 +71,13 @@ class AnimacaoVRP:
         y = [p.coords[1] for p in self.locais_entrega]
         ax.scatter(x, y, c='red', s=50, label="Clientes")
 
-        # Hospital base
+        # Hospital base — desenha apenas uma vez com label
         ax.scatter(self.hospital_base.coords[0], self.hospital_base.coords[1],
                 c='blue', s=80, marker='s', label="Hospital Base")
+
+        # Texto do hospital sem label (não adiciona nova entrada)
+        ax.text(self.hospital_base.coords[0] + 5, self.hospital_base.coords[1] + 5,
+                "Hospital Base", fontsize=9, color="blue")
 
         # Rota
         ax.plot(x_rota, y_rota, color='green', lw=1.5)
@@ -89,7 +92,13 @@ class AnimacaoVRP:
             ax.text(p.coords[0] + 5, p.coords[1] + 5, p.nome, fontsize=8)
 
         ax.set_title(titulo)
-        ax.legend()
+
+        # Remove duplicatas da legenda
+        handles, labels = ax.get_legend_handles_labels()
+        by_label = dict(zip(labels, handles))
+        ax.legend(by_label.values(), by_label.keys())
+
+     
 
     def desenhar_vrp_split(self, ax, rotas, titulo="Mapa VRP Split + Two-Opt"):
         ax.clear()
@@ -199,15 +208,28 @@ class AnimacaoVRP:
                                             color='green', lw=1.8)
 
         # Atualiza ou cria os pontos
+        # Atualiza ou cria os pontos
         if not hasattr(self, 'pontos_clientes'):
             x = [p.coords[0] for p in self.locais_entrega]
             y = [p.coords[1] for p in self.locais_entrega]
             self.pontos_clientes = self.ax2.scatter(x, y, c='red', s=50, label="Clientes")
-            self.ponto_hospital = self.ax2.scatter(self.hospital_base.coords[0],
-                                                self.hospital_base.coords[1],
-                                                c='blue', s=80, marker='s', label="Hospital Base")
+
+            # Hospital base só uma vez com label
+            self.ponto_hospital = self.ax2.scatter(
+                self.hospital_base.coords[0],
+                self.hospital_base.coords[1],
+                c='blue', s=80, marker='s', label="Hospital Base"
+            )
+
+            # Texto do hospital sem label
+            self.ax2.text(self.hospital_base.coords[0] + 5,
+                        self.hospital_base.coords[1] + 5,
+                        "Hospital Base", fontsize=9, color="blue")
+
+            # Nomes dos pontos
             for p in self.locais_entrega:
                 self.ax2.text(p.coords[0] + 5, p.coords[1] + 5, p.nome, fontsize=8)
+
 
         # Texto dinâmico da geração
         if hasattr(self, 'texto_geracao'):
@@ -218,7 +240,11 @@ class AnimacaoVRP:
                                             fontsize=10, color='darkgreen',
                                             bbox=dict(facecolor='white', alpha=0.6))
 
-        self.ax2.legend()
+        #self.ax2.legend()
+        handles, labels = self.ax2.get_legend_handles_labels()
+        by_label = dict(zip(labels, handles))
+        self.ax2.legend(by_label.values(), by_label.keys())
+
         plt.pause(0.01)
  
     def finalizar(self):
