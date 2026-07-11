@@ -1,6 +1,7 @@
 from typing import List
 from data.delivery_points import get_hospital_base, get_pontos_entrega_sem_origem
-from core.genetic_algorithm import executar_algoritmo_genetico, gerar_populacao_aleatoria
+from core.genetic_algorithm import executar_algoritmo_genetico
+from core.population_helper import gerar_populacao_aleatoria
 from core.nearest_neighbor import gerar_populacao_nearest_neighbor, avaliar_baseline_nn
 from core.two_opt import two_opt_inversion
 from core.vrp_split import dividir_rotas_vrp, resumo_restricoes_vrp
