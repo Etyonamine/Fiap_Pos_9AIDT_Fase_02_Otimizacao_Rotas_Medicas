@@ -26,6 +26,8 @@ Variáveis de ambiente (configurar antes de executar com LLM):
 import os
 import sys
 import json
+import matplotlib.pyplot as plt
+
 
 # Garante que o diretório src está no path para imports relativos
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -56,7 +58,7 @@ from llm.prompts import (
     prompt_relatorio_gerencial,
     prompt_pergunta_linguagem_natural,
 )
-
+from visualizacao import animacao_vrp
 
 # ---------------------------------------------------------------------------
 # Parâmetros do GA
@@ -101,6 +103,8 @@ def _chamar_llm_seguro(prompt: str, descricao: str) -> str:
 
 
 def main():
+    
+
     _separador("Sistema de Otimização de Rotas Médicas")
     print("  Algoritmo Genético + Nearest Neighbor + Two Opt Inversion + VRP Split")
     print("  Integração com LLM para instruções e relatórios")
@@ -122,6 +126,9 @@ def main():
     print(f"   Capacidade/veículo   : {CAPACIDADE_VEICULO} un.  "
           f"(carga total: {peso_total_carga:.1f} un.)")
     print(f"   Autonomia/veículo    : {AUTONOMIA_VEICULO} px")
+ 
+
+    animacao = animacao_vrp.AnimacaoVRP(locais_entrega, hospital_base)
 
     # ------------------------------------------------------------------
     # 2. Baseline: Nearest Neighbor
@@ -146,6 +153,8 @@ def main():
           f"({n_nn} Nearest Neighbor + {n_aleatorio} aleatórias)")
     print(f"🔄 Evoluindo (máx. {N_GERACOES} gerações, parada por convergência após {PACIENCIA} sem melhora)...\n")
 
+    animacao.desenhar_populacao_inicial(animacao.ax2, populacao_inicial[0])
+
     melhor_rota_ga, custo_ga, historico, _ = executar_algoritmo_genetico(
         locais_entrega=locais_entrega,
         hospital_base=hospital_base,
@@ -155,6 +164,7 @@ def main():
         capacidade_veiculo=CAPACIDADE_VEICULO,
         autonomia_veiculo=AUTONOMIA_VEICULO,
         verbose=True,
+        animacao=animacao
     )
 
     print(f"\n✅ Melhor custo GA (giant tour com penalidades): {custo_ga:.2f}")
@@ -182,6 +192,9 @@ def main():
         autonomia_veiculo=AUTONOMIA_VEICULO,
         n_veiculos=N_VEICULOS,
     )
+    animacao.desenhar_vrp_split(animacao.ax3, rotas_vrp)
+    
+
     resumo_vrp = resumo_restricoes_vrp(
         rotas_vrp, hospital_base, CAPACIDADE_VEICULO, AUTONOMIA_VEICULO
     )
@@ -203,6 +216,7 @@ def main():
         rota_str += f" → {hospital_base.nome}"
         print(f"    Rota         : {rota_str}\n")
 
+    
     # ------------------------------------------------------------------
     # 6. Gerar relatório estruturado
     # ------------------------------------------------------------------
@@ -287,6 +301,7 @@ def main():
     print(f"\n💾 Relatório salvo em: {output_path}")
     _separador()
 
+    plt.show(block=True)
 
 if __name__ == "__main__":
     main()

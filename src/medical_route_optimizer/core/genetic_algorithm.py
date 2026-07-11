@@ -26,6 +26,9 @@ from data.delivery_points import PontoEntrega
 from core.genetic_operator import order_crossover, mutate, mutate_segment_inversion, pmx_crossover
 from core.fitness_calculator import calcular_custo_rota, calcular_custo_giant_tour_vrp
 from core.population_helper import ordenar_populacao
+from visualizacao.animacao_vrp import AnimacaoVRP
+
+
 
 # ---------------------------------------------------------------------------
 # Constantes
@@ -54,7 +57,8 @@ def executar_algoritmo_genetico(
     fator_penalidade_capacidade: float = FATOR_PENALIDADE_CAPACIDADE,
     fator_penalidade_autonomia: float = FATOR_PENALIDADE_AUTONOMIA,
     verbose: bool = True,
-    limite_tempo: Optional[int] = 120  # tempo máximo em segundos
+    limite_tempo: Optional[int] = 120,  # tempo máximo em segundos
+    animacao: Optional[AnimacaoVRP] = None
 ) -> Tuple[List[PontoEntrega], float, List[float], List[float]]:
     import numpy as np
     import time
@@ -88,6 +92,7 @@ def executar_algoritmo_genetico(
 
     populacao_rotas = list(populacao_inicial)
     historico_custos, historico_media = [], []
+    
 
     custos_iniciais = [_custo(rota) for rota in populacao_rotas]
     idx_melhor = custos_iniciais.index(min(custos_iniciais))
@@ -95,6 +100,8 @@ def executar_algoritmo_genetico(
     melhor_rota_global = populacao_rotas[idx_melhor]
     geracoes_sem_melhora = 0
     geracao = 0
+
+    
 
     while True:  # loop infinito até critério híbrido parar
         geracao += 1
@@ -104,6 +111,10 @@ def executar_algoritmo_genetico(
         melhor_custo, melhor_rota = custos[0], populacao_rotas[0]
         historico_custos.append(melhor_custo)
         historico_media.append(float(np.mean(custos)))
+
+        media_custos = float(np.mean(custos))
+        if animacao:
+            animacao.registrar(geracao, melhor_custo, media_custos, melhor_rota)
 
         if melhor_custo_global - melhor_custo > tolerancia:
             melhoria = melhor_custo_global - melhor_custo
@@ -160,6 +171,9 @@ def executar_algoritmo_genetico(
                 nova_populacao.append(random.sample(locais_entrega, len(locais_entrega)))
 
         populacao_rotas = nova_populacao
+
+    if animacao:
+        animacao.finalizar()
 
     return melhor_rota_global, melhor_custo_global, historico_custos, historico_media
 
