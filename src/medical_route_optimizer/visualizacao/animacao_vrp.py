@@ -21,8 +21,8 @@ class AnimacaoVRP:
         self.ax_mapa.set_xlim(400, 820)
         self.ax_mapa.set_ylim(0, 420)
 
-        # Figura 2 — Mapa de Entregas (dinâmico)
-        self.fig_mapa, self.ax_vrp_split = plt.subplots(figsize=(6, 4))
+        # Figura 3 — Mapa de Entregas (dinâmico)
+        self.fig_vrp_split, self.ax_vrp_split = plt.subplots(figsize=(6, 4))
         self.ax_vrp_split.set_title("Mapa de Entregas VRP SPLIT + TWO-2-OPT")
         self.ax_vrp_split.set_xlim(400, 820)
         self.ax_vrp_split.set_ylim(0, 420)
@@ -142,6 +142,13 @@ class AnimacaoVRP:
 
         ax.set_title(titulo)
         ax.legend()
+
+        self.fig_vrp_split.tight_layout()
+        self.fig_vrp_split.canvas.draw()
+        self.fig_vrp_split.canvas.flush_events()
+        
+        plt.pause(0.01)
+
     
     def registrar(self, geracao, melhor_custo, media_custos, melhor_rota, rota_nn=None):
         # Atualiza histórico
