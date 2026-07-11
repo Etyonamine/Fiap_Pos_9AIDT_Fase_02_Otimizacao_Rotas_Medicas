@@ -191,7 +191,7 @@ def main():
           f"({n_nn} Nearest Neighbor + {n_aleatorio} aleatórias)")
     print(f"🔄 Evoluindo (máx. {N_GERACOES} gerações, parada por convergência após {PACIENCIA} sem melhora)...\n")
 
-    animacao.desenhar_populacao_inicial(animacao.ax2, populacao_inicial[0])
+    animacao.desenhar_populacao_inicial(animacao.ax_mapa, populacao_inicial[0])
 
     melhor_rota_ga, custo_ga, historico, _ = executar_algoritmo_genetico(
         locais_entrega=locais_entrega,
@@ -230,8 +230,8 @@ def main():
         autonomia_veiculo=AUTONOMIA_VEICULO,
         n_veiculos=N_VEICULOS,
     )
-    animacao.desenhar_vrp_split(animacao.ax3, rotas_vrp)
-    
+
+    animacao.desenhar_vrp_split(animacao.ax_vrp_split, rotas_vrp)
 
     resumo_vrp = resumo_restricoes_vrp(
         rotas_vrp, hospital_base, CAPACIDADE_VEICULO, AUTONOMIA_VEICULO

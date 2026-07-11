@@ -114,7 +114,7 @@ def executar_algoritmo_genetico(
 
         media_custos = float(np.mean(custos))
         if animacao:
-            animacao.registrar(geracao, melhor_custo, media_custos, melhor_rota)
+            animacao.registrar(geracao, melhor_custo, media_custos, melhor_rota, populacao_inicial[0])
 
         if melhor_custo_global - melhor_custo > tolerancia:
             melhoria = melhor_custo_global - melhor_custo
