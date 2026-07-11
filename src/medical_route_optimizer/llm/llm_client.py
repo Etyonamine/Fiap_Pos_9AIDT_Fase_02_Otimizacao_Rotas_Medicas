@@ -31,16 +31,15 @@ def _get_model() -> str:
     return os.getenv("LLM_MODEL", DEFAULT_MODEL).strip()
 
 
-def _chamar_groq(prompt: str, model: str, max_tokens: int) -> str:
-    """Chama o modelo Groq."""
+def _chamar_groq(prompt: str, model: str, max_tokens: int, api_key: str) -> str:
+    """Chama o modelo Groq. api_key é obrigatório e deve ser fornecido pelo chamador."""
     try:
         from groq import Groq  # type: ignore
     except ImportError as e:
         raise ImportError("Pacote 'groq' não encontrado. Instale com: pip install groq") from e
 
-    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
-        raise EnvironmentError("Variável de ambiente GROQ_API_KEY não configurada.")
+        raise EnvironmentError("Chave de API não fornecida. Informe a GROQ_API_KEY na execução.")
 
     client = Groq(api_key=api_key)
     last_exc = None
@@ -73,30 +72,30 @@ def _chamar_groq(prompt: str, model: str, max_tokens: int) -> str:
 
 def chamar_llm(
     prompt: str,
+    api_key: str,
     max_tokens: int = 1024,
     model: Optional[str] = None,
-    return_metadata: bool = False
+    return_metadata: bool = False,
 ) -> Any:
     """
-    Envia um prompt para o LLM Groq configurado e retorna a resposta em texto.
+    Envia um prompt para o LLM Groq e retorna a resposta em texto.
 
     Parâmetros:
-    - prompt: texto do prompt a enviar ao modelo
+    - prompt   : texto do prompt a enviar ao modelo
+    - api_key  : chave de API obrigatória, fornecida pelo chamador na execução
     - max_tokens: limite de tokens na resposta (padrão 1024)
-    - model: modelo a usar; usa LLM_MODEL ou padrão se omitido
-    - return_metadata: se True, retorna um dict com 'text' e 'meta' (model, prompt)
-
-    Retorno:
-    - se return_metadata False: string com a resposta
-    - se return_metadata True: dict {"text": str, "meta": {"model":..., "prompt":...}}
+    - model    : modelo a usar; usa LLM_MODEL ou padrão se omitido
+    - return_metadata: se True, retorna dict com 'text' e 'meta'
 
     Exceções:
-    - EnvironmentError: se a chave de API não estiver configurada
+    - EnvironmentError: se api_key estiver vazia
     - ImportError: se o pacote 'groq' não estiver instalado
     - RuntimeError: erros de rede/timeout após retentativas
     """
+    if not api_key:
+        raise EnvironmentError("api_key é obrigatório. Forneça a chave na execução do programa.")
     model = model or _get_model()
-    text = _chamar_groq(prompt, model, max_tokens)
+    text = _chamar_groq(prompt, model, max_tokens, api_key=api_key)
 
     if return_metadata:
         return {
@@ -104,7 +103,7 @@ def chamar_llm(
             "meta": {
                 "provider": "groq",
                 "model": model,
-                "prompt": prompt[:10000]  # truncar se muito grande
+                "prompt": prompt[:10000]
             }
         }
     return text

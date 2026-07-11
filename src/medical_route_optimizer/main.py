@@ -27,6 +27,11 @@ import os
 import sys
 import json
 import matplotlib.pyplot as plt
+from typing import Optional
+from dotenv import load_dotenv
+
+# Carrega variáveis do .env antes de qualquer os.getenv()
+load_dotenv()
 
 
 # Garante que o diretório src está no path para imports relativos
@@ -91,11 +96,45 @@ def _usar_llm() -> bool:
     return os.getenv("USE_LLM", "false").lower() == "true"
 
 
-def _chamar_llm_seguro(prompt: str, descricao: str) -> str:
-    """Chama a LLM com tratamento de erro gracioso."""
+def _solicitar_chave_api() -> Optional[str]:
+    """
+    Solicita obrigatoriamente a chave de API ao usuário no início da execução.
+
+    - A chave NUNCA é lida do .env nem de variáveis de ambiente.
+    - Deve ser informada pelo operador a cada execução (digitada no terminal).
+    - Retorna a chave (str) se informada, ou None se o usuário cancelar/pular.
+    """
+    provedor = os.getenv("LLM_PROVIDER", "groq").strip().lower()
+    chave_env = "GROQ_API_KEY" if provedor == "groq" else "OPENAI_API_KEY"
+    nome_provedor = "Groq" if provedor == "groq" else "OpenAI"
+
+    _separador(f"Configuração da LLM — {nome_provedor}")
+    print(f"  Provedor configurado : {nome_provedor}")
+    print(f"  Chave necessária     : {chave_env}")
+    print()
+    print("  A chave deve ser informada agora para prosseguir com a LLM.")
+    print("  Pressione Enter sem digitar para continuar SEM LLM.")
+    print()
+
+    try:
+        chave = input(f"🔑 {chave_env} (cole aqui): ").strip()
+    except (EOFError, KeyboardInterrupt):
+        chave = ""
+
+    if chave:
+        print(f"\n✅ Chave {chave_env} capturada. Será usada apenas nesta execução.")
+        return chave
+    else:
+        print("\n⚠️  Nenhuma chave informada. A LLM será desabilitada para esta execução.")
+        os.environ["USE_LLM"] = "false"
+        return None
+
+
+def _chamar_llm_seguro(prompt: str, descricao: str, api_key: Optional[str] = None) -> str:
+    """Chama a LLM com tratamento de erro gracioso, passando a chave diretamente."""
     try:
         from llm.llm_client import chamar_llm
-        return chamar_llm(prompt)
+        return chamar_llm(prompt, api_key=api_key)
     except (EnvironmentError, ImportError, ValueError) as e:
         return f"[LLM indisponível — {descricao}]\nErro: {e}"
     except Exception as e:
@@ -103,7 +142,6 @@ def _chamar_llm_seguro(prompt: str, descricao: str) -> str:
 
 
 def main():
-    
 
     _separador("Sistema de Otimização de Rotas Médicas")
     print("  Algoritmo Genético + Nearest Neighbor + Two Opt Inversion + VRP Split")
@@ -121,7 +159,7 @@ def main():
     peso_total_carga = sum(p.peso for p in locais_entrega)
     for p in locais_entrega:
         print(f"   [{PRIORIDADE_LABEL.get(p.prioridade, '?')}] {p.nome}  ({p.peso:.1f} un.)")
-    print(f"\n⚙️  Restrições VRP:")
+    print("\n⚙️  Restrições VRP:")
     print(f"   Veículos disponíveis : {N_VEICULOS}")
     print(f"   Capacidade/veículo   : {CAPACIDADE_VEICULO} un.  "
           f"(carga total: {peso_total_carga:.1f} un.)")
@@ -256,39 +294,42 @@ def main():
     # 7. Integração com LLM
     # ------------------------------------------------------------------
     if _usar_llm():
-        print("\n\n🤖 Gerando instruções operacionais via LLM...")
-        prompt_instrucoes = prompt_instrucoes_operacionais(relatorio)
-        instrucoes = _chamar_llm_seguro(prompt_instrucoes, "instruções operacionais")
-        _separador("Instruções para a Equipe de Entrega")
-        print(instrucoes)
+        # Solicita a chave no momento exato em que a LLM será usada
+        api_key_llm = _solicitar_chave_api()
+        if not api_key_llm:
+            print("\nℹ️  Execução encerrada sem integração LLM.")
+        else:
+            print("\n\n🤖 Gerando instruções operacionais via LLM...")
+            prompt_instrucoes = prompt_instrucoes_operacionais(relatorio)
+            instrucoes = _chamar_llm_seguro(prompt_instrucoes, "instruções operacionais", api_key=api_key_llm)
+            _separador("Instruções para a Equipe de Entrega")
+            print(instrucoes)
 
-        print("\n\n📈 Gerando relatório gerencial via LLM...")
-        prompt_rel = prompt_relatorio_gerencial(relatorio)
-        relatorio_gerencial = _chamar_llm_seguro(prompt_rel, "relatório gerencial")
-        _separador("Relatório Gerencial")
-        print(relatorio_gerencial)
+            print("\n\n📈 Gerando relatório gerencial via LLM...")
+            prompt_rel = prompt_relatorio_gerencial(relatorio)
+            relatorio_gerencial = _chamar_llm_seguro(prompt_rel, "relatório gerencial", api_key=api_key_llm)
+            _separador("Relatório Gerencial")
+            print(relatorio_gerencial)
 
-        # ------------------------------------------------------------------
-        # 8. Modo interativo de perguntas
-        # ------------------------------------------------------------------
-        _separador("Modo Interativo — Perguntas sobre a Rota")
-        print("Digite sua pergunta sobre a rota de entregas (ou 'sair' para encerrar):\n")
-        while True:
-            try:
-                pergunta = input("❓ Pergunta: ").strip()
-            except (EOFError, KeyboardInterrupt):
-                break
+            # ------------------------------------------------------------------
+            # 8. Modo interativo de perguntas
+            # ------------------------------------------------------------------
+            _separador("Modo Interativo — Perguntas sobre a Rota")
+            print("Digite sua pergunta sobre a rota de entregas (ou 'sair' para encerrar):\n")
+            while True:
+                try:
+                    pergunta = input("❓ Pergunta: ").strip()
+                except (EOFError, KeyboardInterrupt):
+                    break
 
-            if not pergunta or pergunta.lower() in ("sair", "exit", "quit"):
-                break
+                if not pergunta or pergunta.lower() in ("sair", "exit", "quit"):
+                    break
 
-            prompt_qa = prompt_pergunta_linguagem_natural(relatorio, pergunta)
-            resposta = _chamar_llm_seguro(prompt_qa, "resposta Q&A")
-            print(f"\n💬 Resposta:\n{resposta}\n")
+                prompt_qa = prompt_pergunta_linguagem_natural(relatorio, pergunta)
+                resposta = _chamar_llm_seguro(prompt_qa, "resposta Q&A", api_key=api_key_llm)
+                print(f"\n💬 Resposta:\n{resposta}\n")
     else:
-        print("\nℹ️  LLM não habilitada. Para ativar, configure USE_LLM=true e a chave de API.")
-        print("   Bash: export USE_LLM=true && export OPENAI_API_KEY=sk-... && python -m  main")
-        print("   PowerShell: $env:USE_LLM='true'; $env:OPENAI_API_KEY='sk-...'; python -m  main")
+        print("\nℹ️  LLM não habilitada. Para ativar, configure USE_LLM=true no .env.")
         print("\n   Os prompts foram gerados e estão prontos para uso:")
         print("   - prompt_instrucoes_operacionais(relatorio)")
         print("   - prompt_relatorio_gerencial(relatorio)")

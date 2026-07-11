@@ -10,7 +10,7 @@ class AnimacaoVRP:
         self.historico_media = []
 
         # Cria uma figura com 3 painéis lado a lado
-        self.fig, (self.ax1, self.ax2, self.ax3) = plt.subplots(1, 3, figsize=(24, 12))
+        self.fig, (self.ax1, self.ax2, self.ax3) = plt.subplots(1, 3, figsize=(15, 5))
         plt.subplots_adjust(wspace=0.25, hspace=0.3)
         
         # Painel 1: evolução dos custos
@@ -31,6 +31,7 @@ class AnimacaoVRP:
         plt.ion()  # modo interativo para atualização dinâmica
 
     def desenhar_populacao_inicial(self, ax, rota_inicial, titulo="Rota Inicial (Nearest Neighbor)"):
+
         ax.clear()
         rota_completa = [self.hospital_base] + rota_inicial + [self.hospital_base]
 
@@ -58,6 +59,7 @@ class AnimacaoVRP:
 
         ax.set_title(titulo)
         ax.legend()
+    
     def desenhar_rota(self, ax, rota, titulo):
         ax.clear()
         rota_completa = [self.hospital_base] + rota + [self.hospital_base]
@@ -97,9 +99,7 @@ class AnimacaoVRP:
         handles, labels = ax.get_legend_handles_labels()
         by_label = dict(zip(labels, handles))
         ax.legend(by_label.values(), by_label.keys())
-
-     
-
+   
     def desenhar_vrp_split(self, ax, rotas, titulo="Mapa VRP Split + Two-Opt"):
         ax.clear()
 
@@ -141,7 +141,6 @@ class AnimacaoVRP:
 
         ax.set_title(titulo)
         ax.legend()
-
     
     def registrar(self, geracao, melhor_custo, media_custos, melhor_rota):
         self.historico_custos.append(melhor_custo)
