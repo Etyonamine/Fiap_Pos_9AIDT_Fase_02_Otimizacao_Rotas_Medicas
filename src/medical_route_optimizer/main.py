@@ -16,18 +16,21 @@ Uso:
     python -m main
 
 Variáveis de ambiente (configurar antes de executar com LLM):
-    LLM_PROVIDER    → "openai" ou "groq" (padrão: groq)
-    groq_key        → chave de API Groq definida em llm/.env
+    LLM_PROVIDER    → "groq" (padrão)
     LLM_MODEL       → modelo específico (opcional)
     USE_LLM         → "true" para habilitar chamadas à LLM (padrão: false)
+
+Configuração de chave de API (arquivo llm/.env):
+    groq_key        → chave de API Groq (lida automaticamente do arquivo llm/.env)
 """
 
 import os
 import sys
 import json
 import matplotlib.pyplot as plt
+from pathlib import Path
 from typing import Optional
-from dotenv import load_dotenv
+from dotenv import load_dotenv, dotenv_values
 
 # Carrega variáveis do .env antes de qualquer os.getenv()
 load_dotenv()
@@ -106,9 +109,6 @@ def _solicitar_chave_api() -> Optional[str]:
     - A variável deve estar definida como: groq_key=SUA_CHAVE_AQUI
     - Retorna a chave (str) se encontrada, ou None se estiver ausente/vazia.
     """
-    from pathlib import Path
-    from dotenv import dotenv_values
-
     _env_llm_path = Path(__file__).parent / "llm" / ".env"
     env_llm = dotenv_values(dotenv_path=_env_llm_path)
     chave = env_llm.get("groq_key", "").strip()
