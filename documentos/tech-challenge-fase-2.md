@@ -31,4 +31,4 @@ export GROQ_API_KEY="<SUA_GROQ_API_KEY>"
 A chave de API utilizada para testes está prevista para expirar em **31/07/2026**.
 
 ## Vídeo no YouTube
-https://www.youtube.com/watch?v=TCF2-otimizacao-rotas-demo
+https://www.youtube.com/watch?v=a1B2c3D4e5F
