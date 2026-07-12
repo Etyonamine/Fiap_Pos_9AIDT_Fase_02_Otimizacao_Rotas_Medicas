@@ -47,6 +47,9 @@ from core.population_helper import (
 )
 from core.genetic_algorithm import (    
     executar_algoritmo_genetico,
+    FATOR_PENALIDADE_PRIORIDADE,
+    FATOR_PENALIDADE_CAPACIDADE,
+    FATOR_PENALIDADE_AUTONOMIA,
 )
 from core.nearest_neighbor import (
     gerar_populacao_nearest_neighbor,
@@ -212,7 +215,13 @@ def main():
     # ------------------------------------------------------------------
     _separador("Etapa 3/5 — Refinamento: Two Opt Inversion")
     melhor_rota_final, custo_final = two_opt_inversion(
-        melhor_rota_ga, hospital_base, verbose=True
+        melhor_rota_ga, hospital_base,
+        fator_penalidade=FATOR_PENALIDADE_PRIORIDADE,
+        capacidade_veiculo=CAPACIDADE_VEICULO,
+        autonomia_veiculo=AUTONOMIA_VEICULO,
+        fator_penalidade_capacidade=FATOR_PENALIDADE_CAPACIDADE,
+        fator_penalidade_autonomia=FATOR_PENALIDADE_AUTONOMIA,
+        verbose=True,
     )
     print(f"\n✅ Custo final (GA + Two Opt): {custo_final:.2f}")
     if custo_ga > 0:
