@@ -4,7 +4,7 @@
     "distancia_total_pixels": 1219.22,
     "tempo_total_estimado_min": 423.8,
     "custo_otimizado": 1466.72,
-    "n_geracoes_ga": 52,
+    "n_geracoes_ga": 51,
     "custo_inicial_ga": 1357.9,
     "custo_final_ga": 1323.07
   },
@@ -273,12 +273,11 @@
       1323.07,
       1323.07,
       1323.07,
-      1323.07,
       1323.07
     ],
-    "n_geracoes_total": 52,
+    "n_geracoes_total": 51,
     "n_geracoes_com_melhoria": 2,
-    "n_geracoes_sem_melhoria": 50
+    "n_geracoes_sem_melhoria": 49
   },
   "vrp": {
     "n_veiculos": 2,
