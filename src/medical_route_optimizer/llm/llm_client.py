@@ -11,13 +11,26 @@ Características:
 import os
 import time
 import asyncio
+from pathlib import Path
 from typing import Optional, Any
-from dotenv import load_dotenv
+
+try:
+    from dotenv import load_dotenv
+    _DOTENV_AVAILABLE = True
+except ImportError:
+    _DOTENV_AVAILABLE = False
 
 # ---- Garante que variáveis do .env estejam disponíveis ----
 if not os.getenv("LLM_PROVIDER"):
-    load_dotenv()
-    print("[llm_client] Variáveis de ambiente carregadas do .env")
+    if _DOTENV_AVAILABLE:
+        _env_path = Path(__file__).parent / ".env"
+        load_dotenv(dotenv_path=_env_path)
+        print("[llm_client] Variáveis de ambiente carregadas do .env")
+    else:
+        print(
+            "[llm_client] python-dotenv não instalado; instale com: pip install python-dotenv. "
+            "A aplicação continuará, mas LLM_MODEL e LLM_PROVIDER devem ser definidos manualmente."
+        )
 # -----------------------------------------------------------
 
 
