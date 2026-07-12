@@ -13,7 +13,7 @@ Uso no pipeline:
     - Serve como baseline de comparação com a solução final do GA + Two Opt.
 """
 
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 from data.delivery_points import PontoEntrega
 from core.route_calculator import calcular_distancia
@@ -94,18 +94,38 @@ def gerar_populacao_nearest_neighbor(
 
 def avaliar_baseline_nn(
     locais_entrega: List[PontoEntrega],
-    hospital_base: PontoEntrega
+    hospital_base: PontoEntrega,
+    fator_penalidade: float = 5.0,
+    capacidade_veiculo: Optional[float] = None,
+    autonomia_veiculo: Optional[float] = None,
+    fator_penalidade_capacidade: float = 17.0,
+    fator_penalidade_autonomia: float = 1.0,
 ) -> Tuple[List[PontoEntrega], float]:
     """
     Retorna a rota NN padrão e seu custo, para uso como baseline de comparação.
 
+    Os parâmetros de custo devem ser idênticos aos usados pelo GA e pelo Two-Opt
+    para garantir que todos os valores no comparativo final estejam na mesma escala.
+
     Parâmetros:
     - locais_entrega: pontos de entrega (sem o hospital base)
     - hospital_base: ponto de origem e retorno
+    - fator_penalidade: peso da penalidade de prioridade (deve coincidir com o GA)
+    - capacidade_veiculo: limite de carga — None = irrestrito
+    - autonomia_veiculo: limite de distância — None = irrestrito
+    - fator_penalidade_capacidade: peso por excesso de carga
+    - fator_penalidade_autonomia: peso por excesso de distância
 
     Retorno:
     - (rota_nn, custo_nn)
     """
     rota_nn = nearest_neighbor(locais_entrega, hospital_base)
-    custo_nn = calcular_custo_rota(rota_nn, hospital_base)
+    custo_nn = calcular_custo_rota(
+        rota_nn, hospital_base,
+        fator_penalidade=fator_penalidade,
+        capacidade_veiculo=capacidade_veiculo,
+        autonomia_veiculo=autonomia_veiculo,
+        fator_penalidade_capacidade=fator_penalidade_capacidade,
+        fator_penalidade_autonomia=fator_penalidade_autonomia,
+    )
     return rota_nn, custo_nn

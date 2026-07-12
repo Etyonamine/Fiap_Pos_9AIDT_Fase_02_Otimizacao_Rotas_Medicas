@@ -7,6 +7,26 @@ from typing import List, Optional
 from data.delivery_points import PontoEntrega
 from medical_route_optimizer.core.route_calculator import calcular_distancia
 
+
+def calcular_distancia_rota(
+    rota: List[PontoEntrega],
+    hospital_base: PontoEntrega,
+) -> float:
+    """
+    Retorna apenas a distância total do ciclo (depósito → rota → depósito),
+    sem nenhuma penalidade.
+
+    Útil para comparativos finais entre abordagens, onde se deseja medir
+    exclusivamente o custo geográfico, independente dos fatores de penalidade
+    usados internamente pelo GA.
+    """
+    rota_completa = [hospital_base] + list(rota) + [hospital_base]
+    return sum(
+        calcular_distancia(rota_completa[i], rota_completa[i + 1])
+        for i in range(len(rota_completa) - 1)
+    )
+
+
 def calcular_custo_rota(
     rota: List[PontoEntrega],
     hospital_base: PontoEntrega,
