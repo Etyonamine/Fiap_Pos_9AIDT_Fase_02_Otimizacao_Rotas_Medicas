@@ -53,6 +53,21 @@ PONTOS_ENTREGA: List[PontoEntrega] = [
     PontoEntrega("Paciente - Rua do Lago",   coords=(563, 228), prioridade=1, tempo_atendimento=10, peso=1.0),
     PontoEntrega("Posto Saúde Leste",        coords=(494,  22), prioridade=2, tempo_atendimento=20, peso=2.0),
     PontoEntrega("UBS Vila Esperança",       coords=(787, 288), prioridade=3, tempo_atendimento=15, peso=3.0),
+    PontoEntrega("UBS Jardim Aurora",           coords=(612, 145), prioridade=2, tempo_atendimento=15, peso=2.0),
+    PontoEntrega("Clínica Santa Helena",        coords=(735,  90), prioridade=3, tempo_atendimento=10, peso=1.5),
+    PontoEntrega("Posto Saúde Vila Rica",       coords=(520, 205), prioridade=1, tempo_atendimento=20, peso=2.5),
+    PontoEntrega("Paciente - Rua das Amendoeiras",coords=(740,  55), prioridade=1, tempo_atendimento=10, peso=1.0),
+    PontoEntrega("Farmácia Popular Oeste III",  coords=(605, 180), prioridade=3, tempo_atendimento=5,  peso=4.0),
+    PontoEntrega("UBS Santa Marta",             coords=(785, 140), prioridade=2, tempo_atendimento=15, peso=2.0),
+    PontoEntrega("Paciente - Av. Dom Pedro",    coords=(628,  48), prioridade=1, tempo_atendimento=10, peso=1.0),
+    PontoEntrega("Clínica Vida Nova",           coords=(710,  33), prioridade=2, tempo_atendimento=10, peso=1.5),
+    PontoEntrega("Posto Saúde Jardim Azul",     coords=(575, 240), prioridade=2, tempo_atendimento=20, peso=2.0),
+    PontoEntrega("UBS Nova Aliança",            coords=(618, 392), prioridade=3, tempo_atendimento=15, peso=3.0),
+    PontoEntrega("Farmácia Central Oeste II",   coords=(730, 360), prioridade=3, tempo_atendimento=5,  peso=4.0),
+    PontoEntrega("Paciente - Rua das Violetas", coords=(562, 210), prioridade=1, tempo_atendimento=10, peso=1.0),
+    PontoEntrega("Posto Saúde Jardim Real",     coords=(488,  40), prioridade=2, tempo_atendimento=20, peso=2.0),
+    PontoEntrega("UBS Vila Horizonte",          coords=(792, 320), prioridade=3, tempo_atendimento=15, peso=3.0),
+   
 ]
 
 

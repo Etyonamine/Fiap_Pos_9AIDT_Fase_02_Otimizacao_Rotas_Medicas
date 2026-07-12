@@ -1,0 +1,1571 @@
+{
+  "resumo": {
+    "total_pontos_entrega": 71,
+    "distancia_total_pixels": 1698.07,
+    "tempo_total_estimado_min": 1224.6,
+    "custo_otimizado": 3937.48,
+    "n_geracoes_ga": 86,
+    "custo_inicial_ga": 4499.64,
+    "custo_final_ga": 4101.33
+  },
+  "origem_retorno": "Hospital Base",
+  "sequencia_atendimentos": [
+    {
+      "posicao": 1,
+      "nome": "Paciente - Rua do Lago",
+      "coords": [
+        563,
+        228
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 20.5,
+      "tempo_acumulado_min": 30.5
+    },
+    {
+      "posicao": 2,
+      "nome": "Paciente - Rua das Orquídeas",
+      "coords": [
+        566,
+        222
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 1.3,
+      "tempo_acumulado_min": 41.9
+    },
+    {
+      "posicao": 3,
+      "nome": "Paciente - Rua do Campo",
+      "coords": [
+        568,
+        232
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 2.0,
+      "tempo_acumulado_min": 53.9
+    },
+    {
+      "posicao": 4,
+      "nome": "Paciente - Rua das Cerejeiras",
+      "coords": [
+        572,
+        238
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 1.4,
+      "tempo_acumulado_min": 65.3
+    },
+    {
+      "posicao": 5,
+      "nome": "Posto Saúde Jardim Azul",
+      "coords": [
+        575,
+        240
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 0.7,
+      "tempo_acumulado_min": 86.1
+    },
+    {
+      "posicao": 6,
+      "nome": "Paciente - Rua das Bromélias",
+      "coords": [
+        578,
+        242
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 0.7,
+      "tempo_acumulado_min": 96.8
+    },
+    {
+      "posicao": 7,
+      "nome": "Posto Saúde Vila Verde",
+      "coords": [
+        592,
+        228
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 4.0,
+      "tempo_acumulado_min": 120.7
+    },
+    {
+      "posicao": 8,
+      "nome": "Posto Saúde Central II",
+      "coords": [
+        595,
+        225
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 0.8,
+      "tempo_acumulado_min": 141.6
+    },
+    {
+      "posicao": 9,
+      "nome": "Posto Saúde Vila União II",
+      "coords": [
+        587,
+        218
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 2.1,
+      "tempo_acumulado_min": 163.7
+    },
+    {
+      "posicao": 10,
+      "nome": "Posto Saúde Vila Nova II",
+      "coords": [
+        582,
+        212
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 1.6,
+      "tempo_acumulado_min": 185.3
+    },
+    {
+      "posicao": 11,
+      "nome": "Posto Saúde Sul",
+      "coords": [
+        576,
+        216
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 1.4,
+      "tempo_acumulado_min": 206.7
+    },
+    {
+      "posicao": 12,
+      "nome": "Paciente - Rua das Violetas",
+      "coords": [
+        562,
+        210
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 3.0,
+      "tempo_acumulado_min": 219.8
+    },
+    {
+      "posicao": 13,
+      "nome": "Posto Saúde Vila Rica",
+      "coords": [
+        520,
+        205
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 8.5,
+      "tempo_acumulado_min": 248.2
+    },
+    {
+      "posicao": 14,
+      "nome": "Farmácia Popular Oeste III",
+      "coords": [
+        605,
+        180
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 17.7,
+      "tempo_acumulado_min": 270.9
+    },
+    {
+      "posicao": 15,
+      "nome": "Farmácia Popular Norte II",
+      "coords": [
+        582,
+        155
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 6.8,
+      "tempo_acumulado_min": 282.7
+    },
+    {
+      "posicao": 16,
+      "nome": "Farmácia Popular Jardim",
+      "coords": [
+        602,
+        148
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 4.2,
+      "tempo_acumulado_min": 292.0
+    },
+    {
+      "posicao": 17,
+      "nome": "UBS Jardim Aurora",
+      "coords": [
+        612,
+        145
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 2.1,
+      "tempo_acumulado_min": 309.1
+    },
+    {
+      "posicao": 18,
+      "nome": "Farmácia Popular Central",
+      "coords": [
+        596,
+        142
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 3.3,
+      "tempo_acumulado_min": 317.3
+    },
+    {
+      "posicao": 19,
+      "nome": "Farmácia Popular Sul II",
+      "coords": [
+        592,
+        138
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 1.1,
+      "tempo_acumulado_min": 323.5
+    },
+    {
+      "posicao": 20,
+      "nome": "Farmácia Popular Norte",
+      "coords": [
+        589,
+        131
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 1.5,
+      "tempo_acumulado_min": 330.0
+    },
+    {
+      "posicao": 21,
+      "nome": "Posto Saúde Jardim Real",
+      "coords": [
+        488,
+        40
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 27.2,
+      "tempo_acumulado_min": 377.2
+    },
+    {
+      "posicao": 22,
+      "nome": "Posto Saúde Vila Bela",
+      "coords": [
+        492,
+        27
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 2.7,
+      "tempo_acumulado_min": 399.9
+    },
+    {
+      "posicao": 23,
+      "nome": "Posto Saúde Leste",
+      "coords": [
+        494,
+        22
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 1.1,
+      "tempo_acumulado_min": 421.0
+    },
+    {
+      "posicao": 24,
+      "nome": "Posto Saúde Jardim América II",
+      "coords": [
+        498,
+        31
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 2.0,
+      "tempo_acumulado_min": 442.9
+    },
+    {
+      "posicao": 25,
+      "nome": "Posto Saúde Jardim Europa II",
+      "coords": [
+        502,
+        29
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 0.9,
+      "tempo_acumulado_min": 463.8
+    },
+    {
+      "posicao": 26,
+      "nome": "Posto Saúde Jardim Imperial II",
+      "coords": [
+        506,
+        34
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 1.3,
+      "tempo_acumulado_min": 485.1
+    },
+    {
+      "posicao": 27,
+      "nome": "Clínica São Lucas",
+      "coords": [
+        552,
+        50
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 9.7,
+      "tempo_acumulado_min": 504.8
+    },
+    {
+      "posicao": 28,
+      "nome": "Paciente - Av. Brasil",
+      "coords": [
+        605,
+        15
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 12.7,
+      "tempo_acumulado_min": 527.6
+    },
+    {
+      "posicao": 29,
+      "nome": "Paciente - Rua das Magnólias",
+      "coords": [
+        615,
+        19
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 2.2,
+      "tempo_acumulado_min": 539.7
+    },
+    {
+      "posicao": 30,
+      "nome": "Paciente - Av. Tiradentes",
+      "coords": [
+        618,
+        21
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 0.7,
+      "tempo_acumulado_min": 550.4
+    },
+    {
+      "posicao": 31,
+      "nome": "Paciente - Av. Getúlio Vargas",
+      "coords": [
+        622,
+        23
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 0.9,
+      "tempo_acumulado_min": 561.3
+    },
+    {
+      "posicao": 32,
+      "nome": "Paciente - Av. Rio Branco",
+      "coords": [
+        624,
+        26
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 0.7,
+      "tempo_acumulado_min": 572.0
+    },
+    {
+      "posicao": 33,
+      "nome": "Paciente - Rua das Flores",
+      "coords": [
+        637,
+        12
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 3.8,
+      "tempo_acumulado_min": 585.9
+    },
+    {
+      "posicao": 34,
+      "nome": "Paciente - Av. Dom Pedro",
+      "coords": [
+        628,
+        48
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 7.4,
+      "tempo_acumulado_min": 603.3
+    },
+    {
+      "posicao": 35,
+      "nome": "Clínica Saúde Viva",
+      "coords": [
+        648,
+        66
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 5.4,
+      "tempo_acumulado_min": 618.7
+    },
+    {
+      "posicao": 36,
+      "nome": "Clínica São Rafael",
+      "coords": [
+        642,
+        82
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 3.4,
+      "tempo_acumulado_min": 632.1
+    },
+    {
+      "posicao": 37,
+      "nome": "Clínica Bem Cuidar II",
+      "coords": [
+        652,
+        72
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 2.8,
+      "tempo_acumulado_min": 644.9
+    },
+    {
+      "posicao": 38,
+      "nome": "Clínica Vida Plena",
+      "coords": [
+        658,
+        68
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 1.4,
+      "tempo_acumulado_min": 656.4
+    },
+    {
+      "posicao": 39,
+      "nome": "Clínica Vida Nova",
+      "coords": [
+        710,
+        33
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 12.5,
+      "tempo_acumulado_min": 678.9
+    },
+    {
+      "posicao": 40,
+      "nome": "Clínica Bem Estar",
+      "coords": [
+        730,
+        38
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 4.1,
+      "tempo_acumulado_min": 693.0
+    },
+    {
+      "posicao": 41,
+      "nome": "Clínica Bem Estar III",
+      "coords": [
+        738,
+        47
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 2.4,
+      "tempo_acumulado_min": 705.4
+    },
+    {
+      "posicao": 42,
+      "nome": "Clínica São Miguel",
+      "coords": [
+        742,
+        52
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 1.3,
+      "tempo_acumulado_min": 716.7
+    },
+    {
+      "posicao": 43,
+      "nome": "Paciente - Rua das Amendoeiras",
+      "coords": [
+        740,
+        55
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 0.7,
+      "tempo_acumulado_min": 727.4
+    },
+    {
+      "posicao": 44,
+      "nome": "Clínica Saúde Plena II",
+      "coords": [
+        747,
+        58
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 1.5,
+      "tempo_acumulado_min": 738.9
+    },
+    {
+      "posicao": 45,
+      "nome": "Clínica São Gabriel",
+      "coords": [
+        752,
+        62
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 1.3,
+      "tempo_acumulado_min": 750.2
+    },
+    {
+      "posicao": 46,
+      "nome": "UBS Vila Nova",
+      "coords": [
+        741,
+        72
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 3.0,
+      "tempo_acumulado_min": 768.2
+    },
+    {
+      "posicao": 47,
+      "nome": "Clínica Santa Helena",
+      "coords": [
+        735,
+        90
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 10,
+      "tempo_deslocamento_min": 3.8,
+      "tempo_acumulado_min": 782.0
+    },
+    {
+      "posicao": 48,
+      "nome": "UBS Santa Marta",
+      "coords": [
+        785,
+        140
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 14.1,
+      "tempo_acumulado_min": 811.1
+    },
+    {
+      "posicao": 49,
+      "nome": "UBS Jardim Primavera",
+      "coords": [
+        732,
+        162
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 11.5,
+      "tempo_acumulado_min": 837.6
+    },
+    {
+      "posicao": 50,
+      "nome": "UBS Jardim América",
+      "coords": [
+        732,
+        165
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 0.6,
+      "tempo_acumulado_min": 853.2
+    },
+    {
+      "posicao": 51,
+      "nome": "UBS Jardim Imperial",
+      "coords": [
+        725,
+        168
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 1.5,
+      "tempo_acumulado_min": 869.7
+    },
+    {
+      "posicao": 52,
+      "nome": "UBS Jardim das Oliveiras",
+      "coords": [
+        737,
+        176
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 2.9,
+      "tempo_acumulado_min": 887.6
+    },
+    {
+      "posicao": 53,
+      "nome": "UBS Jardim das Estrelas",
+      "coords": [
+        742,
+        182
+      ],
+      "prioridade": 2,
+      "prioridade_label": "Média",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 1.6,
+      "tempo_acumulado_min": 904.2
+    },
+    {
+      "posicao": 54,
+      "nome": "UBS Vila Esperança",
+      "coords": [
+        787,
+        288
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 23.0,
+      "tempo_acumulado_min": 942.2
+    },
+    {
+      "posicao": 55,
+      "nome": "UBS Vila Vitória",
+      "coords": [
+        782,
+        298
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 2.2,
+      "tempo_acumulado_min": 959.5
+    },
+    {
+      "posicao": 56,
+      "nome": "UBS Vila Progresso II",
+      "coords": [
+        784,
+        302
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 0.9,
+      "tempo_acumulado_min": 975.3
+    },
+    {
+      "posicao": 57,
+      "nome": "UBS Vila Bela Vista",
+      "coords": [
+        789,
+        308
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 1.6,
+      "tempo_acumulado_min": 991.9
+    },
+    {
+      "posicao": 58,
+      "nome": "UBS Vila Horizonte",
+      "coords": [
+        792,
+        320
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 2.5,
+      "tempo_acumulado_min": 1009.4
+    },
+    {
+      "posicao": 59,
+      "nome": "Posto Saúde Centro",
+      "coords": [
+        772,
+        346
+      ],
+      "prioridade": 1,
+      "prioridade_label": "Alta",
+      "tempo_atendimento_min": 20,
+      "tempo_deslocamento_min": 6.6,
+      "tempo_acumulado_min": 1035.9
+    },
+    {
+      "posicao": 60,
+      "nome": "Farmácia Central Oeste II",
+      "coords": [
+        730,
+        360
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 8.9,
+      "tempo_acumulado_min": 1049.8
+    },
+    {
+      "posicao": 61,
+      "nome": "Farmácia Central Vila Nova",
+      "coords": [
+        722,
+        372
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 2.9,
+      "tempo_acumulado_min": 1057.7
+    },
+    {
+      "posicao": 62,
+      "nome": "Farmácia Central Esperança",
+      "coords": [
+        716,
+        378
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 1.7,
+      "tempo_acumulado_min": 1064.4
+    },
+    {
+      "posicao": 63,
+      "nome": "Farmácia Central Jardim",
+      "coords": [
+        718,
+        382
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 0.9,
+      "tempo_acumulado_min": 1070.3
+    },
+    {
+      "posicao": 64,
+      "nome": "Farmácia Central Aurora",
+      "coords": [
+        728,
+        388
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 2.3,
+      "tempo_acumulado_min": 1077.6
+    },
+    {
+      "posicao": 65,
+      "nome": "Farmácia Central",
+      "coords": [
+        711,
+        387
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 5,
+      "tempo_deslocamento_min": 3.4,
+      "tempo_acumulado_min": 1086.0
+    },
+    {
+      "posicao": 66,
+      "nome": "UBS Parque das Flores",
+      "coords": [
+        622,
+        398
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 17.9,
+      "tempo_acumulado_min": 1118.9
+    },
+    {
+      "posicao": 67,
+      "nome": "UBS Nova Aliança",
+      "coords": [
+        618,
+        392
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 1.4,
+      "tempo_acumulado_min": 1135.4
+    },
+    {
+      "posicao": 68,
+      "nome": "UBS Parque Estrela",
+      "coords": [
+        612,
+        388
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 1.4,
+      "tempo_acumulado_min": 1151.8
+    },
+    {
+      "posicao": 69,
+      "nome": "UBS Parque Horizonte",
+      "coords": [
+        617,
+        382
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 1.6,
+      "tempo_acumulado_min": 1168.4
+    },
+    {
+      "posicao": 70,
+      "nome": "UBS Parque Dourado",
+      "coords": [
+        605,
+        375
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 2.8,
+      "tempo_acumulado_min": 1186.2
+    },
+    {
+      "posicao": 71,
+      "nome": "UBS Parque Verde",
+      "coords": [
+        589,
+        381
+      ],
+      "prioridade": 3,
+      "prioridade_label": "Baixa",
+      "tempo_atendimento_min": 15,
+      "tempo_deslocamento_min": 3.4,
+      "tempo_acumulado_min": 1204.6
+    }
+  ],
+  "prioridades": {
+    "alta": [
+      "Paciente - Rua do Lago",
+      "Paciente - Rua das Orquídeas",
+      "Paciente - Rua do Campo",
+      "Paciente - Rua das Cerejeiras",
+      "Paciente - Rua das Bromélias",
+      "Paciente - Rua das Violetas",
+      "Posto Saúde Vila Rica",
+      "Paciente - Av. Brasil",
+      "Paciente - Rua das Magnólias",
+      "Paciente - Av. Tiradentes",
+      "Paciente - Av. Getúlio Vargas",
+      "Paciente - Av. Rio Branco",
+      "Paciente - Rua das Flores",
+      "Paciente - Av. Dom Pedro",
+      "Paciente - Rua das Amendoeiras",
+      "UBS Vila Nova",
+      "Posto Saúde Centro"
+    ],
+    "media": [
+      "Posto Saúde Jardim Azul",
+      "Posto Saúde Vila Verde",
+      "Posto Saúde Central II",
+      "Posto Saúde Vila União II",
+      "Posto Saúde Vila Nova II",
+      "Posto Saúde Sul",
+      "UBS Jardim Aurora",
+      "Posto Saúde Jardim Real",
+      "Posto Saúde Vila Bela",
+      "Posto Saúde Leste",
+      "Posto Saúde Jardim América II",
+      "Posto Saúde Jardim Europa II",
+      "Posto Saúde Jardim Imperial II",
+      "Clínica São Lucas",
+      "Clínica Saúde Viva",
+      "Clínica São Rafael",
+      "Clínica Bem Cuidar II",
+      "Clínica Vida Plena",
+      "Clínica Vida Nova",
+      "Clínica Bem Estar",
+      "Clínica Bem Estar III",
+      "Clínica São Miguel",
+      "Clínica Saúde Plena II",
+      "Clínica São Gabriel",
+      "UBS Santa Marta",
+      "UBS Jardim Primavera",
+      "UBS Jardim América",
+      "UBS Jardim Imperial",
+      "UBS Jardim das Oliveiras",
+      "UBS Jardim das Estrelas"
+    ],
+    "baixa": [
+      "Farmácia Popular Oeste III",
+      "Farmácia Popular Norte II",
+      "Farmácia Popular Jardim",
+      "Farmácia Popular Central",
+      "Farmácia Popular Sul II",
+      "Farmácia Popular Norte",
+      "Clínica Santa Helena",
+      "UBS Vila Esperança",
+      "UBS Vila Vitória",
+      "UBS Vila Progresso II",
+      "UBS Vila Bela Vista",
+      "UBS Vila Horizonte",
+      "Farmácia Central Oeste II",
+      "Farmácia Central Vila Nova",
+      "Farmácia Central Esperança",
+      "Farmácia Central Jardim",
+      "Farmácia Central Aurora",
+      "Farmácia Central",
+      "UBS Parque das Flores",
+      "UBS Nova Aliança",
+      "UBS Parque Estrela",
+      "UBS Parque Horizonte",
+      "UBS Parque Dourado",
+      "UBS Parque Verde"
+    ]
+  },
+  "comparacao_baseline_nn": {
+    "custo_baseline_nn": 6741.81,
+    "custo_otimizado": 3937.48,
+    "economia_percentual": 41.6,
+    "ga_superou_nn": true
+  },
+  "historico_evolucao": {
+    "melhor_custo_por_geracao": [
+      4499.64,
+      4499.64,
+      4499.64,
+      4499.64,
+      4499.64,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4465.3,
+      4438.87,
+      4438.87,
+      4438.87,
+      4438.87,
+      4428.54,
+      4281.31,
+      4281.31,
+      4281.31,
+      4281.31,
+      4281.31,
+      4271.2,
+      4271.2,
+      4270.99,
+      4270.99,
+      4270.99,
+      4270.99,
+      4270.99,
+      4270.99,
+      4267.77,
+      4267.77,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4263.73,
+      4262.41,
+      4255.16,
+      4255.16,
+      4245.81,
+      4238.55,
+      4238.55,
+      4238.55,
+      4238.55,
+      4238.55,
+      4238.55,
+      4238.55,
+      4238.55,
+      4233.46,
+      4228.12,
+      4228.12,
+      4228.12,
+      4228.12,
+      4211.82,
+      4211.82,
+      4211.82,
+      4164.0,
+      4164.0,
+      4157.17,
+      4157.17,
+      4157.17,
+      4157.17,
+      4101.33,
+      4101.33,
+      4101.33,
+      4101.33,
+      4101.33,
+      4101.33,
+      4101.33,
+      4101.33,
+      4101.33,
+      4101.33
+    ],
+    "n_geracoes_total": 86,
+    "n_geracoes_com_melhoria": 18,
+    "n_geracoes_sem_melhoria": 68
+  },
+  "vrp": {
+    "n_veiculos": 2,
+    "solucao_valida": false,
+    "veiculos": [
+      {
+        "veiculo": 1,
+        "n_pontos": 9,
+        "peso_total": 14.5,
+        "capacidade_veiculo": 16,
+        "capacidade_ok": true,
+        "distancia_pixels": 292.78,
+        "autonomia_veiculo": 1400,
+        "autonomia_ok": true,
+        "pontos": [
+          {
+            "nome": "Paciente - Rua do Lago",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Rua das Orquídeas",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Rua do Campo",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Rua das Cerejeiras",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Posto Saúde Jardim Azul",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Paciente - Rua das Bromélias",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Posto Saúde Vila Verde",
+            "prioridade": 2,
+            "peso": 2.5,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Posto Saúde Central II",
+            "prioridade": 2,
+            "peso": 2.5,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Posto Saúde Vila União II",
+            "prioridade": 2,
+            "peso": 2.5,
+            "tempo_atendimento_min": 20
+          }
+        ]
+      },
+      {
+        "veiculo": 2,
+        "n_pontos": 62,
+        "peso_total": 146.5,
+        "capacidade_veiculo": 16,
+        "capacidade_ok": false,
+        "distancia_pixels": 1647.88,
+        "autonomia_veiculo": 1400,
+        "autonomia_ok": false,
+        "pontos": [
+          {
+            "nome": "Posto Saúde Vila Nova II",
+            "prioridade": 2,
+            "peso": 2.5,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Posto Saúde Sul",
+            "prioridade": 2,
+            "peso": 2.5,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Paciente - Rua das Violetas",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Posto Saúde Vila Rica",
+            "prioridade": 1,
+            "peso": 2.5,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Farmácia Popular Oeste III",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Popular Norte II",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Popular Jardim",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "UBS Jardim Aurora",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "Farmácia Popular Central",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Popular Sul II",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Popular Norte",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Posto Saúde Jardim Real",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Posto Saúde Vila Bela",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Posto Saúde Leste",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Posto Saúde Jardim América II",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Posto Saúde Jardim Europa II",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Posto Saúde Jardim Imperial II",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Clínica São Lucas",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Av. Brasil",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Rua das Magnólias",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Av. Tiradentes",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Av. Getúlio Vargas",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Av. Rio Branco",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Rua das Flores",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Av. Dom Pedro",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica Saúde Viva",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica São Rafael",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica Bem Cuidar II",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica Vida Plena",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica Vida Nova",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica Bem Estar",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica Bem Estar III",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica São Miguel",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Paciente - Rua das Amendoeiras",
+            "prioridade": 1,
+            "peso": 1.0,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica Saúde Plena II",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "Clínica São Gabriel",
+            "prioridade": 2,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "UBS Vila Nova",
+            "prioridade": 1,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "Clínica Santa Helena",
+            "prioridade": 3,
+            "peso": 1.5,
+            "tempo_atendimento_min": 10
+          },
+          {
+            "nome": "UBS Santa Marta",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Jardim Primavera",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Jardim América",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Jardim Imperial",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Jardim das Oliveiras",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Jardim das Estrelas",
+            "prioridade": 2,
+            "peso": 2.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Vila Esperança",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Vila Vitória",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Vila Progresso II",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Vila Bela Vista",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Vila Horizonte",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "Posto Saúde Centro",
+            "prioridade": 1,
+            "peso": 3.0,
+            "tempo_atendimento_min": 20
+          },
+          {
+            "nome": "Farmácia Central Oeste II",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Central Vila Nova",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Central Esperança",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Central Jardim",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Central Aurora",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "Farmácia Central",
+            "prioridade": 3,
+            "peso": 4.0,
+            "tempo_atendimento_min": 5
+          },
+          {
+            "nome": "UBS Parque das Flores",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Nova Aliança",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Parque Estrela",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Parque Horizonte",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Parque Dourado",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          },
+          {
+            "nome": "UBS Parque Verde",
+            "prioridade": 3,
+            "peso": 3.0,
+            "tempo_atendimento_min": 15
+          }
+        ]
+      }
+    ]
+  }
+}
