@@ -22,7 +22,7 @@ Repositório do **Tech Challenge Fase 2 (FIAP Pós-Tech 9AIDT)** com foco em oti
 ### Linux/macOS
 
 ```bash
-cd /home/runner/work/Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas/Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas
+cd /path/to/Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas
 python3.11 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
@@ -32,7 +32,7 @@ pip install -r src/medical_route_optimizer/requirements.txt
 ### Windows (PowerShell)
 
 ```powershell
-cd C:\caminho\Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas
+cd C:\path\to\Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -63,7 +63,7 @@ Defina variáveis de ambiente antes da execução:
 - `LLM_PROVIDER=groq` ou `LLM_PROVIDER=openai`
 - `GROQ_API_KEY` (se Groq) ou `OPENAI_API_KEY` (se OpenAI)
 
-## Notebook Jupyter `ga_pipeline_demo`
+## Notebook Jupyter `GA_pipeline_demo`
 
 O notebook está em:
 
@@ -72,7 +72,7 @@ O notebook está em:
 Para executar:
 
 ```bash
-cd /home/runner/work/Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas/Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas
+cd /path/to/Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas
 jupyter lab
 ```
 
