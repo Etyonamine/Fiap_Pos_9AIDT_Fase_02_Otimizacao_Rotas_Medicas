@@ -8,6 +8,7 @@ from visualizacao.animacao_vrp import AnimacaoVRP
 
 
 def _build_animacao(monkeypatch, hospital, pontos_tres):
+    plt.close("all")
     monkeypatch.setattr(plt, "ion", lambda: None)
     monkeypatch.setattr(plt, "pause", lambda *_: None)
     monkeypatch.setattr(plt, "ioff", lambda: None)
@@ -88,6 +89,7 @@ def test_registrar_atualiza_historicos_e_comparacao_nn(monkeypatch, hospital, po
 
 def test_finalizar_desliga_modo_interativo(monkeypatch, hospital, pontos_tres):
     chamadas = {"ioff": 0, "pause": []}
+    plt.close("all")
     monkeypatch.setattr(plt, "ion", lambda: None)
     monkeypatch.setattr(plt, "ioff", lambda: chamadas.__setitem__("ioff", chamadas["ioff"] + 1))
     monkeypatch.setattr(plt, "pause", lambda valor: chamadas["pause"].append(valor))

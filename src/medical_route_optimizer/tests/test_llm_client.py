@@ -175,6 +175,15 @@ def test_chamar_groq_retries_and_raises_runtime_error(monkeypatch):
     assert tentativas["total"] == module.RETRY_ATTEMPTS
 
 
+def test_chamar_groq_falha_desconhecida_sem_tentativas(monkeypatch):
+    module, _ = _load_temp_module(monkeypatch, llm_provider="groq")
+    monkeypatch.setattr(module, "RETRY_ATTEMPTS", 0)
+    _install_fake_groq(monkeypatch, lambda **_: None)
+
+    with pytest.raises(RuntimeError, match="Falha desconhecida na chamada Groq."):
+        module._chamar_groq("prompt", "modelo", 10, api_key="key")
+
+
 def test_chamar_llm_requires_api_key(monkeypatch):
     module, _ = _load_temp_module(monkeypatch, llm_provider="groq")
 
