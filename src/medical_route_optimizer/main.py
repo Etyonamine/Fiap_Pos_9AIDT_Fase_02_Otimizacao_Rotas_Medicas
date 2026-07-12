@@ -71,18 +71,17 @@ from visualizacao import animacao_vrp
 # ---------------------------------------------------------------------------
 # Parâmetros do GA
 # ---------------------------------------------------------------------------
-TAMANHO_POPULACAO = 150
-N_GERACOES = 200        # limite máximo de gerações
-PACIENCIA = 150          # gerações sem melhora para parada antecipada
-PROBABILIDADE_MUTACAO = 0.3
-PROPORCAO_NN = 0.15  # 15% da população inicial gerada por Nearest Neighbor
+TAMANHO_POPULACAO = 250
+PACIENCIA = 200          # gerações sem melhora para parada antecipada
+PROBABILIDADE_MUTACAO = 0.6
+PROPORCAO_NN = 0.25      # 25% da população inicial gerada por Nearest Neighbor
 
 # ---------------------------------------------------------------------------
 # Parâmetros VRP (Roteamento de Veículos)
 # ---------------------------------------------------------------------------
 N_VEICULOS = 2           # número máximo de veículos disponíveis
-CAPACIDADE_VEICULO = 16  # carga máxima por veículo (unidades/kg)
-AUTONOMIA_VEICULO = 1400 # distância máxima por ciclo em pixels (~140 km)
+CAPACIDADE_VEICULO = 12  # carga máxima por veículo (unidades/kg)
+AUTONOMIA_VEICULO = 1000 # distância máxima por ciclo em pixels (~140 km)
 
 
 def _separador(titulo: str = "") -> None:
@@ -192,7 +191,7 @@ def main():
 
     print(f"🧬 População inicial: {len(populacao_inicial)} rotas "
           f"({n_nn} Nearest Neighbor + {n_aleatorio} aleatórias)")
-    print(f"🔄 Evoluindo (máx. {N_GERACOES} gerações, parada por convergência após {PACIENCIA} sem melhora)...\n")
+    
 
     animacao.desenhar_populacao_inicial(animacao.ax_mapa, populacao_inicial[0])
 

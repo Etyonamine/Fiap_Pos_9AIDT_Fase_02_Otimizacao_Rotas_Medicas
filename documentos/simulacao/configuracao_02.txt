@@ -1,0 +1,18 @@
+# ---------------------------------------------------------------------------
+# Parâmetros do GA
+# ---------------------------------------------------------------------------
+TAMANHO_POPULACAO = 250
+PACIENCIA = 100          # gerações sem melhora para parada antecipada
+PROBABILIDADE_MUTACAO = 0.6
+PROPORCAO_NN = 0.30  # 15% da população inicial gerada por Nearest Neighbor
+FATOR_PENALIDADE_PRIORIDADE = 2.0    # peso da penalidade de prioridade no custo
+CAPACIDADE_VEICULO = 18  # carga máxima por veículo (unidades/kg)
+AUTONOMIA_VEICULO = 1800 # distância máxima por ciclo em pixels (~140 km)
+
+
+# ---------------------------------------------------------------------------
+# Parâmetros VRP (Roteamento de Veículos)
+# ---------------------------------------------------------------------------
+N_VEICULOS = 2           # número máximo de veículos disponíveis
+CAPACIDADE_VEICULO = 18  # carga máxima por veículo (unidades/kg)
+AUTONOMIA_VEICULO = 1800 # distância máxima por ciclo em pixels (~140 km)
