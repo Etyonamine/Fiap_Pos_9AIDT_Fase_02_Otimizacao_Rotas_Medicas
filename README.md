@@ -8,6 +8,7 @@ Repositório do **Tech Challenge Fase 2 (FIAP Pós Tech 9AIDT)** com foco em oti
 |---|---|---|
 | Projeto principal Python | `src/medical_route_optimizer/` | Motor de otimização, relatórios, integração opcional com LLM e app Streamlit |
 | Notebook de demonstração | `notebook/GA_pipeline_demo.ipynb` | Demonstração passo a passo do pipeline GA/VRP |
+| Diagramas de arquitetura (formal) | `documentos/arquitetura/README.md` | Visão arquitetural consolidada em local único (contexto, containers, componentes, sequência, implantação) |
 | Documentação complementar | `documentos/` | Materiais de apoio do desafio |
 | Relatórios gerados (exemplo) | `src/medical_route_optimizer/relatorio_rota.json` | Saída estruturada da execução |
 
