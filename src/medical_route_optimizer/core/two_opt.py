@@ -14,14 +14,19 @@ Uso no pipeline:
     - Não modifica o GA — é uma etapa de pós-processamento.
 """
 
-from typing import List, Tuple
-from core.genetic_algorithm import calcular_custo_rota
+from typing import List, Optional, Tuple
+from core.fitness_calculator import calcular_custo_rota
 from data.delivery_points import PontoEntrega
 
 
 def two_opt_inversion(
     rota: List[PontoEntrega],
     hospital_base: PontoEntrega,
+    fator_penalidade: float = 5.0,
+    capacidade_veiculo: Optional[float] = None,
+    autonomia_veiculo: Optional[float] = None,
+    fator_penalidade_capacidade: float = 17.0,
+    fator_penalidade_autonomia: float = 1.0,
     max_iteracoes: int = 1000,
     verbose: bool = False
 ) -> Tuple[List[PontoEntrega], float]:
@@ -32,17 +37,35 @@ def two_opt_inversion(
     reduz o custo total. Aceita imediatamente a primeira melhoria encontrada
     (estratégia first improvement) e reinicia a busca.
 
+    Os parâmetros de custo devem ser os mesmos usados pelo GA e pelo baseline NN
+    para garantir que todas as métricas estejam na mesma escala.
+
     Parâmetros:
     - rota: sequência de pontos de entrega (sem o hospital base nos extremos)
     - hospital_base: ponto de origem e retorno (usado no cálculo do custo)
+    - fator_penalidade: peso da penalidade de prioridade (deve coincidir com o GA)
+    - capacidade_veiculo: limite de carga — None = irrestrito
+    - autonomia_veiculo: limite de distância — None = irrestrito
+    - fator_penalidade_capacidade: peso por excesso de carga
+    - fator_penalidade_autonomia: peso por excesso de distância
     - max_iteracoes: limite máximo de iterações para evitar loop infinito
     - verbose: se True, imprime cada melhoria encontrada
 
     Retorno:
     - (rota_otimizada, custo_otimizado)
     """
+    def _custo(r):
+        return calcular_custo_rota(
+            r, hospital_base,
+            fator_penalidade=fator_penalidade,
+            capacidade_veiculo=capacidade_veiculo,
+            autonomia_veiculo=autonomia_veiculo,
+            fator_penalidade_capacidade=fator_penalidade_capacidade,
+            fator_penalidade_autonomia=fator_penalidade_autonomia,
+        )
+
     melhor_rota = list(rota)
-    melhor_custo = calcular_custo_rota(melhor_rota, hospital_base)
+    melhor_custo = _custo(melhor_rota)
     n = len(melhor_rota)
     iteracao = 0
     melhoria_encontrada = True
@@ -58,7 +81,7 @@ def two_opt_inversion(
                             melhor_rota[i + 1:k + 1][::-1] + \
                             melhor_rota[k + 1:]
 
-                novo_custo = calcular_custo_rota(nova_rota, hospital_base)
+                novo_custo = _custo(nova_rota)
 
                 if novo_custo < melhor_custo:
                     melhor_rota = nova_rota
@@ -74,3 +97,53 @@ def two_opt_inversion(
                 break
 
     return melhor_rota, melhor_custo
+
+
+def two_opt_vrp(
+    rotas_vrp: List[List[PontoEntrega]],
+    hospital_base: PontoEntrega,
+    fator_penalidade: float = 5.0,
+    capacidade_veiculo: Optional[float] = None,
+    autonomia_veiculo: Optional[float] = None,
+    fator_penalidade_capacidade: float = 17.0,
+    fator_penalidade_autonomia: float = 1.0,
+    max_iteracoes: int = 1000,
+    verbose: bool = False,
+) -> Tuple[List[List[PontoEntrega]], float]:
+    """
+    Aplica Two-Opt Inversion individualmente em cada sub-rota de uma solução VRP.
+
+    Ao contrário de aplicar Two-Opt sobre o giant tour, esta abordagem preserva
+    a divisão de veículos estabelecida pelo VRP Split e melhora cada sub-rota
+    de forma independente, evitando que a reordenação global desfaça uma
+    partição válida das restrições de capacidade/autonomia.
+
+    Parâmetros:
+    - rotas_vrp: lista de sub-rotas (uma por veículo), sem o hospital base nos extremos
+    - hospital_base: ponto de origem e retorno de cada veículo
+    - demais parâmetros: idênticos a two_opt_inversion, devem ser os mesmos
+      usados pelo GA e pelo baseline NN para comparativos coerentes
+
+    Retorno:
+    - (rotas_otimizadas, custo_total) onde custo_total é a soma dos custos
+      de cada sub-rota após o refinamento
+    """
+    rotas_otimizadas: List[List[PontoEntrega]] = []
+    custo_total = 0.0
+
+    for rota in rotas_vrp:
+        rota_otim, custo = two_opt_inversion(
+            rota, hospital_base,
+            fator_penalidade=fator_penalidade,
+            capacidade_veiculo=capacidade_veiculo,
+            autonomia_veiculo=autonomia_veiculo,
+            fator_penalidade_capacidade=fator_penalidade_capacidade,
+            fator_penalidade_autonomia=fator_penalidade_autonomia,
+            max_iteracoes=max_iteracoes,
+            verbose=verbose,
+        )
+        rotas_otimizadas.append(rota_otim)
+        custo_total += custo
+
+    return rotas_otimizadas, custo_total
+

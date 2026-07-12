@@ -7,10 +7,10 @@ def test_run_ga_returns_resultado(monkeypatch):
     # Monkeypatch funções pesadas para não rodar GA real
     monkeypatch.setattr("services.ga_runner.executar_algoritmo_genetico",
                         lambda **kwargs: (["rota"], 50, [100, 80], [90, 70]))
-    monkeypatch.setattr("services.ga_runner.two_opt_inversion",
-                        lambda rota, hospital: (rota, 50))
+    monkeypatch.setattr("services.ga_runner.two_opt_vrp",
+                        lambda rotas_vrp, hospital, **kwargs: (rotas_vrp, 50))
     monkeypatch.setattr("services.ga_runner.avaliar_baseline_nn",
-                        lambda locais, hospital: (["rota_nn"], 120))
+                        lambda locais, hospital, **kwargs: (["rota_nn"], 120))
     monkeypatch.setattr("services.ga_runner.dividir_rotas_vrp",
                         lambda *args, **kwargs: [["rota"]])
     monkeypatch.setattr("services.ga_runner.resumo_restricoes_vrp",
