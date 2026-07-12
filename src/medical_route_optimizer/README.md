@@ -9,6 +9,9 @@ Otimiza rotas de entrega de medicamentos e insumos hospitalares utilizando
 
 ## Arquitetura do Sistema
 
+> Diagramas formais e consolidados em local único:  
+> `documentos/arquitetura/README.md` (raiz do repositório)
+
 ```
 [Entrada de dados]        → data/delivery_points.py
        ↓
