@@ -1,0 +1,4 @@
+﻿Configuração,Distância Total (px),Tempo Estimado (min),Custo Inicial GA,Custo Final GA,Entregas Críticas (Alta prioridade),Nº Veículos,Penalidades (Capacidade/Autonomia)
+Config. 1,1465.04,653,2116.81,1902.98,9 atendidas,2,Veículo 2 acima da capacidade
+Config. 2,1465.04,653,1983.60,1803.26,9 atendidas,2,Veículo 2 acima da capacidade
+Config. 3,1465.04,653,2723.27,2669.43,9 atendidas,2,Veículo 2 acima da capacidade e autonomia

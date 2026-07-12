@@ -82,8 +82,8 @@ PROPORCAO_NN = 0.25      # 25% da população inicial gerada por Nearest Neighbo
 # Parâmetros VRP (Roteamento de Veículos)
 # ---------------------------------------------------------------------------
 N_VEICULOS = 2           # número máximo de veículos disponíveis
-CAPACIDADE_VEICULO = 12  # carga máxima por veículo (unidades/kg)
-AUTONOMIA_VEICULO = 1000 # distância máxima por ciclo em pixels (~140 km)
+CAPACIDADE_VEICULO = 16  # carga máxima por veículo (unidades/kg)
+AUTONOMIA_VEICULO = 1400 # distância máxima por ciclo em pixels (~140 km)
 
 
 def _separador(titulo: str = "") -> None:
