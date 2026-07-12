@@ -9,7 +9,9 @@ from pathlib import Path
 import pytest
 
 MODULE_PATH = "medical_route_optimizer.llm.llm_client"
-MODULE_FILE = Path(importlib.util.find_spec(MODULE_PATH).origin).resolve()
+MODULE_SPEC = importlib.util.find_spec(MODULE_PATH)
+assert MODULE_SPEC is not None and MODULE_SPEC.origin is not None
+MODULE_FILE = Path(MODULE_SPEC.origin).resolve()
 
 
 def _load_temp_module(monkeypatch, *, dotenv_available=True, llm_provider=None):

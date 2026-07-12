@@ -17,7 +17,7 @@ def _import_maps(monkeypatch):
     monkeypatch.setitem(
         sys.modules,
         "streamlit",
-        types.SimpleNamespace(
+        SimpleNamespace(
             columns=lambda *_: [],
             markdown=lambda *_: None,
             caption=lambda *_: None,

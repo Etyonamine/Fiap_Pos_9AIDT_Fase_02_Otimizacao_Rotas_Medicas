@@ -5,7 +5,9 @@ import os
 import pytest
 from data.delivery_points import PontoEntrega
 
-os.environ.setdefault("MPLBACKEND", "Agg")
+
+def pytest_sessionstart(session):
+    os.environ.setdefault("MPLBACKEND", "Agg")
 
 
 @pytest.fixture
