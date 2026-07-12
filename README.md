@@ -73,7 +73,7 @@ Para executar:
 
 ```bash
 cd /path/to/Fiap_Pos_9AIDT_Fase_02_Otimizacao_Rotas_Medicas
-jupyter lab
+jupyterlab
 ```
 
 Depois, abra `notebook/GA_pipeline_demo.ipynb`.
