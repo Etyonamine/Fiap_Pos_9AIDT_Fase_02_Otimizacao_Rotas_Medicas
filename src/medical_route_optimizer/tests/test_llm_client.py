@@ -41,7 +41,7 @@ def _load_temp_module(monkeypatch, *, dotenv_available=True, llm_provider=None):
     module_name = f"temp_llm_client_{uuid.uuid4().hex}"
     spec = importlib.util.spec_from_file_location(module_name, MODULE_FILE)
     module = importlib.util.module_from_spec(spec)
-    sys.modules[module_name] = module
+    monkeypatch.setitem(sys.modules, module_name, module)
     spec.loader.exec_module(module)
     return module, calls
 
@@ -175,7 +175,7 @@ def test_chamar_groq_retries_and_raises_runtime_error(monkeypatch):
     assert tentativas["total"] == module.RETRY_ATTEMPTS
 
 
-def test_chamar_groq_falha_desconhecida_sem_tentativas(monkeypatch):
+def test_chamar_groq_raises_when_zero_retries_configured(monkeypatch):
     module, _ = _load_temp_module(monkeypatch, llm_provider="groq")
     monkeypatch.setattr(module, "RETRY_ATTEMPTS", 0)
     _install_fake_groq(monkeypatch, lambda **_: None)

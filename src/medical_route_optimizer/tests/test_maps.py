@@ -1,10 +1,8 @@
-import sys
 import types
 from types import SimpleNamespace
 
-sys.modules.setdefault("streamlit", types.SimpleNamespace(columns=None, markdown=None, caption=None))
-
-from visualizacao import maps
+import importlib
+import sys
 
 
 class _FakeColumn:
@@ -15,7 +13,18 @@ class _FakeColumn:
         return False
 
 
-def test_build_route_map_cria_tracos_e_anotacoes(hospital, pontos_tres):
+def _import_maps(monkeypatch):
+    monkeypatch.setitem(
+        sys.modules,
+        "streamlit",
+        types.SimpleNamespace(columns=None, markdown=None, caption=None),
+    )
+    sys.modules.pop("visualizacao.maps", None)
+    return importlib.import_module("visualizacao.maps")
+
+
+def test_build_route_map_cria_tracos_e_anotacoes(monkeypatch, hospital, pontos_tres):
+    maps = _import_maps(monkeypatch)
     fig = maps.build_route_map(hospital, pontos_tres, [pontos_tres[:2], pontos_tres[2:]])
 
     assert len(fig.data) == 10
@@ -32,6 +41,7 @@ def test_render_vrp_cards_renderiza_status(monkeypatch):
     markdowns = []
     captions = []
 
+    maps = _import_maps(monkeypatch)
     fake_st = SimpleNamespace(
         columns=lambda n: [_FakeColumn() for _ in range(n)],
         markdown=lambda text: markdowns.append(text),
