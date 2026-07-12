@@ -3,7 +3,7 @@
     "total_pontos_entrega": 14,
     "distancia_total_pixels": 1219.22,
     "tempo_total_estimado_min": 423.8,
-    "custo_otimizado": 1466.72,
+    "custo_otimizado": 1323.07,
     "n_geracoes_ga": 51,
     "custo_inicial_ga": 1357.9,
     "custo_final_ga": 1323.07
@@ -216,9 +216,9 @@
     ]
   },
   "comparacao_baseline_nn": {
-    "custo_baseline_nn": 1542.06,
-    "custo_otimizado": 1466.72,
-    "economia_percentual": 4.89,
+    "custo_baseline_nn": 1357.9,
+    "custo_otimizado": 1323.07,
+    "economia_percentual": 2.57,
     "ga_superou_nn": true
   },
   "historico_evolucao": {
