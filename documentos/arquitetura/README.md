@@ -19,14 +19,14 @@ flowchart LR
 ```mermaid
 flowchart TD
     subgraph APP[medical_route_optimizer]
-        DATA[data/\ndelivery_points.py]
-        CORE[core/\nGA + NN + Two-Opt + VRP Split + Fitness]
-        SVC[services/\nga_runner.py]
-        REP[reports/\nroute_report.py]
-        LLM[llm/\nprompts + llm_client]
-        UI[app.py (Streamlit)]
-        CLI[main.py (pipeline)]
-        VIS[visualizacao/\nplots + maps + animacao]
+        DATA["data/\ndelivery_points.py"]
+        CORE["core/\nGA + NN + Two-Opt + VRP Split + Fitness"]
+        SVC["services/\nga_runner.py"]
+        REP["reports/\nroute_report.py"]
+        LLM["llm/\nprompts + llm_client"]
+        UI["app.py (Streamlit)"]
+        CLI["main.py (pipeline)"]
+        VIS["visualizacao/\nplots + maps + animacao"]
     end
 
     DATA --> CORE
@@ -39,6 +39,7 @@ flowchart TD
     CLI --> LLM
     UI --> SVC
     UI --> LLM
+
 ```
 
 ## 3) Diagrama de Componentes (núcleo de otimização)
@@ -82,17 +83,18 @@ sequenceDiagram
 
 ```mermaid
 flowchart LR
-    subgraph LOCAL[Ambiente local (Python 3.11 + venv)]
-        CLI[CLI: python -m main]
-        WEB[Web: streamlit run app.py]
-        PKG[Pacote medical_route_optimizer]
-        FILES[(Arquivos locais\nJSON/Notebook/README)]
+    subgraph LOCAL["Ambiente local (Python 3.11 + venv)"]
+        CLI["CLI: python -m main"]
+        WEB["Web: streamlit run app.py"]
+        PKG["Pacote medical_route_optimizer"]
+        FILES["Arquivos locais\nJSON/Notebook/README"]
     end
 
     CLI --> PKG
     WEB --> PKG
     PKG --> FILES
-    PKG --> EXT[(API LLM externa\nGroq/OpenAI)]
+    PKG --> EXT["API LLM externa\nGroq/OpenAI"]
+
 ```
 
 ## Escopo e objetivo
