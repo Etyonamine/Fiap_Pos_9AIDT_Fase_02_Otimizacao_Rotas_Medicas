@@ -48,7 +48,7 @@ pip install -r src/medical_route_optimizer/requirements.txt
 cd src/medical_route_optimizer
 python -m main
 ```
-
+Observação o ambiente virtual .venv311 deve estar ativo
 ### Execução da interface web (Streamlit)
 
 ```bash
@@ -80,7 +80,8 @@ jupyterlab
 Depois, abra `notebook/GA_pipeline_demo.ipynb`.
 
 ## Testes
-
+Deve ser executado a partir da pasta raiz do repositorio no prompt de comando do power shell com este comando abaixo:
 ```bash
-PYTHONPATH=src:src/medical_route_optimizer python -m pytest src/medical_route_optimizer/tests
+ pytest src/medical_route_optimizer/tests -v
 ```
+Observação o ambiente virtual .venv311 deve estar ativo
