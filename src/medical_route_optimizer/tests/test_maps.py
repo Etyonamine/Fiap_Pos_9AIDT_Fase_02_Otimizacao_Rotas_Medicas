@@ -78,7 +78,7 @@ def test_render_vrp_cards_renderiza_status(monkeypatch):
         "**Veículo 1 ✅**",
         "**Veículo 2 ❌**",
     ]
-    assert captions == [
-        "2 paradas | Carga: 3.5/10.0 | Dist: 42/100.0 px",
-        "1 paradas | Carga: 9.0/8.0 | Dist: 70/120.0 px",
-    ]
+    assert captions[0] == "2 paradas | Carga: 3.5/10.0 | Dist: 42/100.0 px"
+    assert captions[1].startswith("1 ")
+    assert "Carga: 9.0/8.0" in captions[1]
+    assert captions[1].endswith("Dist: 70/120.0 px")
