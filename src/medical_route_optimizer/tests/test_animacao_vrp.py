@@ -1,7 +1,3 @@
-import matplotlib
-
-matplotlib.use("Agg")
-
 import matplotlib.pyplot as plt
 
 from visualizacao.animacao_vrp import AnimacaoVRP

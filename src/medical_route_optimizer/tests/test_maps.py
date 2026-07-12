@@ -17,7 +17,11 @@ def _import_maps(monkeypatch):
     monkeypatch.setitem(
         sys.modules,
         "streamlit",
-        types.SimpleNamespace(columns=None, markdown=None, caption=None),
+        types.SimpleNamespace(
+            columns=lambda *_: [],
+            markdown=lambda *_: None,
+            caption=lambda *_: None,
+        ),
     )
     sys.modules.pop("visualizacao.maps", None)
     return importlib.import_module("visualizacao.maps")
