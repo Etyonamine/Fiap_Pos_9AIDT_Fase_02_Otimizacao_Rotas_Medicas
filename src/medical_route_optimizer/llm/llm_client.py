@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Optional, Any
 
 try:
-    from dotenv import load_dotenv as _load_dotenv
+    from dotenv import load_dotenv
     _DOTENV_AVAILABLE = True
 except ImportError:
     _DOTENV_AVAILABLE = False
@@ -24,10 +24,13 @@ except ImportError:
 if not os.getenv("LLM_PROVIDER"):
     if _DOTENV_AVAILABLE:
         _env_path = Path(__file__).parent / ".env"
-        _load_dotenv(dotenv_path=_env_path)
+        load_dotenv(dotenv_path=_env_path)
         print("[llm_client] Variáveis de ambiente carregadas do .env")
     else:
-        print("[llm_client] python-dotenv não instalado; instale com: pip install python-dotenv")
+        print(
+            "[llm_client] python-dotenv não instalado; instale com: pip install python-dotenv. "
+            "A aplicação continuará, mas LLM_MODEL e LLM_PROVIDER devem ser definidos manualmente."
+        )
 # -----------------------------------------------------------
 
 
