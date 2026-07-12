@@ -1,6 +1,6 @@
 # Otimização de Rotas Médicas
 
-Repositório do **Tech Challenge Fase 2 (FIAP Pós-Tech 9AIDT)** com foco em otimização de rotas de entrega de medicamentos usando **Algoritmo Genético (GA)**, baseline **Nearest Neighbor**, refinamento **Two-Opt** e particionamento **VRP Split**.
+Repositório do **Tech Challenge Fase 2 (FIAP Pós Tech 9AIDT)** com foco em otimização de rotas de entrega de medicamentos usando **Algoritmo Genético (GA)**, baseline **Nearest Neighbor**, refinamento **Two-Opt** e particionamento **VRP Split**.
 
 ## Overview dos artefatos
 
