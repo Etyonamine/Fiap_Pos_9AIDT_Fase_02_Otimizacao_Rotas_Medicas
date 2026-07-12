@@ -16,9 +16,8 @@ Uso:
     python -m main
 
 Variáveis de ambiente (configurar antes de executar com LLM):
-    LLM_PROVIDER    → "openai" ou "groq" (padrão: openai)
-    OPENAI_API_KEY  → chave de API OpenAI (se usar openai)
-    GROQ_API_KEY    → chave de API Groq   (se usar groq)
+    LLM_PROVIDER    → "openai" ou "groq" (padrão: groq)
+    groq_key        → chave de API Groq definida em llm/.env
     LLM_MODEL       → modelo específico (opcional)
     USE_LLM         → "true" para habilitar chamadas à LLM (padrão: false)
 """
@@ -101,34 +100,30 @@ def _usar_llm() -> bool:
 
 def _solicitar_chave_api() -> Optional[str]:
     """
-    Solicita obrigatoriamente a chave de API ao usuário no início da execução.
+    Obtém a chave de API Groq a partir do arquivo llm/.env (chave: groq_key).
 
-    - A chave NUNCA é lida do .env nem de variáveis de ambiente.
-    - Deve ser informada pelo operador a cada execução (digitada no terminal).
-    - Retorna a chave (str) se informada, ou None se o usuário cancelar/pular.
+    - A chave é lida automaticamente do arquivo .env localizado na pasta llm.
+    - A variável deve estar definida como: groq_key=SUA_CHAVE_AQUI
+    - Retorna a chave (str) se encontrada, ou None se estiver ausente/vazia.
     """
-    provedor = os.getenv("LLM_PROVIDER", "groq").strip().lower()
-    chave_env = "GROQ_API_KEY" if provedor == "groq" else "OPENAI_API_KEY"
-    nome_provedor = "Groq" if provedor == "groq" else "OpenAI"
+    from pathlib import Path
+    from dotenv import dotenv_values
 
-    _separador(f"Configuração da LLM — {nome_provedor}")
-    print(f"  Provedor configurado : {nome_provedor}")
-    print(f"  Chave necessária     : {chave_env}")
-    print()
-    print("  A chave deve ser informada agora para prosseguir com a LLM.")
-    print("  Pressione Enter sem digitar para continuar SEM LLM.")
-    print()
+    _env_llm_path = Path(__file__).parent / "llm" / ".env"
+    env_llm = dotenv_values(dotenv_path=_env_llm_path)
+    chave = env_llm.get("groq_key", "").strip()
 
-    try:
-        chave = input(f"🔑 {chave_env} (cole aqui): ").strip()
-    except (EOFError, KeyboardInterrupt):
-        chave = ""
+    _separador("Configuração da LLM — Groq")
+    print(f"  Provedor configurado : Groq")
+    print(f"  Arquivo .env         : {_env_llm_path}")
+    print(f"  Chave lida           : groq_key")
+    print()
 
     if chave:
-        print(f"\n✅ Chave {chave_env} capturada. Será usada apenas nesta execução.")
+        print("✅ groq_key encontrada no llm/.env. Será usada para integração com o Groq.")
         return chave
     else:
-        print("\n⚠️  Nenhuma chave informada. A LLM será desabilitada para esta execução.")
+        print("⚠️  groq_key não encontrada ou vazia em llm/.env. A LLM será desabilitada.")
         os.environ["USE_LLM"] = "false"
         return None
 
