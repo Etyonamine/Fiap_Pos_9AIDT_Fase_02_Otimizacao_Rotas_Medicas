@@ -1,7 +1,13 @@
 """Fixtures compartilhadas para todos os testes do medical_route_optimizer."""
 
+import os
+
 import pytest
 from data.delivery_points import PontoEntrega
+
+
+def pytest_sessionstart(session):
+    os.environ.setdefault("MPLBACKEND", "Agg")
 
 
 @pytest.fixture
